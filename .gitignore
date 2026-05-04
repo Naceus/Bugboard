@@ -427,3 +427,20 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local app settings / secrets
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.*
+
+# Frontend build output
+dist/
+wwwroot/dist/
