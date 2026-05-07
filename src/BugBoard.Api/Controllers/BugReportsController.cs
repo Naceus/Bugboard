@@ -20,9 +20,23 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority)
         {
-            return View(await _context.BugReports.ToListAsync());
+            IQueryable<BugReport> bugReports = _context.BugReports;
+
+            if (status.HasValue)
+            {
+                bugReports = bugReports.Where(b => b.Status == status.Value);
+            }
+            if (priority.HasValue)
+            {
+                bugReports = bugReports.Where(b => b.Priority == priority.Value);
+            }
+
+            ViewData["SelectedStatus"]      = status;
+            ViewData["SelectedPriority"]    = priority;
+
+            return View(await bugReports.ToListAsync());
         }
 
         // GET: BugReports/Details/5
@@ -58,6 +72,8 @@ namespace BugBoard.Api.Controllers
         {
             if (ModelState.IsValid)
             {
+                bugReport.CreateAt = DateTime.Now;
+
                 _context.Add(bugReport);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

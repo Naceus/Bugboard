@@ -3,12 +3,28 @@
 @{
     ViewData["Title"] = "Index";
 }
-
 <h1>Bug List</h1>
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugStatus>()">
+               <option value="">All statuses</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-select" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugPriority>()">
+            <option value="All priorities"></option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Apply filters</button>
+            <a asp-action="Index" class="btn btn-secondary">Reset</a>
+        </div>
+    </div>
+</form>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -38,7 +54,8 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+            <tr onclick="location.href='@Url.Action("Details", new { id = item.Id })'"
+                style="cursor: pointer;">
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
@@ -59,13 +76,11 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+            </td
         </tr>
 }
     </tbody>
 </table>
+<p>
+    <a class="btn btn-success" asp-action="Create">Create New</a>
+</p>

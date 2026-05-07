@@ -7,7 +7,6 @@
 <h1>Details</h1>
 
 <div>
-    <h4>BugReport</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -54,7 +53,13 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="d-flex gap-2 align-items-center">
+    <a class="btn btn-dark" asp-action="Index">Back</a>
+    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+    <form asp-action="Delete" asp-routine-id="@Model.Id" method="post"
+        onsubmit="return confirm('Are you sure want to delete this bug report?');">
+    <input type="hidden" asp-for="Id"/>
+   <button type="submit" class="btn btn-danger">Delete</button>
+</form>
 </div>
+
