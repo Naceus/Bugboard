@@ -1,0 +1,86 @@
+﻿@model IEnumerable<BugBoard.Api.Models.BugReports.BugReport>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<h1>Bug List</h1>
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugStatus>()">
+               <option value="">All statuses</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-select" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugPriority>()">
+            <option value="All priorities"></option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Apply filters</button>
+            <a asp-action="Index" class="btn btn-secondary">Reset</a>
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AssignedTo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+            <tr onclick="location.href='@Url.Action("Details", new { id = item.Id })'"
+                style="cursor: pointer;">
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssignedTo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td
+        </tr>
+}
+    </tbody>
+</table>
+<p>
+    <a class="btn btn-success" asp-action="Create">Create New</a>
+</p>
