@@ -1,0 +1,17 @@
+﻿@model BugStatus;
+
+@{
+    switch (Model)
+    {
+        case BugStatus.Open:
+            <span class="badge bg-success">Open</span>
+            break;
+        case BugStatus.Closed:
+            <span class="badge bg-danger">Closed</span>
+            break;
+        case BugStatus.InProgress:
+            <span class="badge bg-warning">In Progress</span>
+            break;
+
+    }
+}

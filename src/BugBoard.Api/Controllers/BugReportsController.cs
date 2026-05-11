@@ -94,6 +94,7 @@ namespace BugBoard.Api.Controllers
             {
                 return NotFound();
             }
+            bugReport.UpdatedAt = DateTime.Now;
             return View(bugReport);
         }
 
