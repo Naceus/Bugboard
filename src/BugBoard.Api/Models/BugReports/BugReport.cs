@@ -12,9 +12,9 @@ public class BugReport
     public string Description { get; set; } = string.Empty;
 
     public BugStatus Status { get; set; } = BugStatus.Open;
-    public BugPriority Priority { get; set; } = BugPriority.Medium;
+    public BugPriority Priority { get; set; } = BugPriority.Low;
     public string? AssignedTo { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; } 
 }
 

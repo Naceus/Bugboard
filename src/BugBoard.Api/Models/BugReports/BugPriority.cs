@@ -5,6 +5,5 @@ public enum BugPriority
 {
     Low,
     Medium,
-    High,
     Critical
 }

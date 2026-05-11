@@ -4,6 +4,5 @@ public enum BugStatus
 {
     Open,
     InProgress,
-    Resolved,
     Closed
 }
