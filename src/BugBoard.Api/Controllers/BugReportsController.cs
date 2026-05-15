@@ -20,10 +20,14 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports
-        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority)
+        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority, string? title)
         {
             IQueryable<BugReport> bugReports = _context.BugReports;
 
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                bugReports = bugReports.Where(b => b.Title.Contains(title));
+            }
             if (status.HasValue)
             {
                 bugReports = bugReports.Where(b => b.Status == status.Value);
@@ -33,6 +37,8 @@ namespace BugBoard.Api.Controllers
                 bugReports = bugReports.Where(b => b.Priority == priority.Value);
             }
 
+
+            ViewData["SelectedTitle"] = title;
             ViewData["SelectedStatus"]      = status;
             ViewData["SelectedPriority"]    = priority;
 

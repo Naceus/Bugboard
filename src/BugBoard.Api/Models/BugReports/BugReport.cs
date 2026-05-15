@@ -6,10 +6,10 @@ public class BugReport
     public int Id { get; set; }
 
     [Required]
-    public string Title { get; set; } = string.Empty;
+    public string? Title { get; set; }
 
     [Required]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     public BugStatus Status { get; set; } = BugStatus.Open;
     public BugPriority Priority { get; set; } = BugPriority.Low;
