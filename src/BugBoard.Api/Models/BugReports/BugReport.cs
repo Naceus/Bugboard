@@ -15,6 +15,8 @@ public class BugReport
     public BugPriority Priority { get; set; } = BugPriority.Low;
     public string? AssignedTo { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; } 
+    public DateTime? UpdatedAt { get; set; }
+
+    public List<BugReportLog> Logs { get; set; } = new();
 }
 

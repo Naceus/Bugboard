@@ -8,7 +8,8 @@
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
             <label class="form-label">Search</label>
-            <input name="title" class="form-control" value="@ViewData["SelectedTitle"]" />
+            <input name="title" class="form-control" placeholder="Search title" value="@ViewData["SelectedTitle"]"/>
+            
         </div>
         <div class="col-md-4">
             <label class="form-label">Status</label>
@@ -19,7 +20,7 @@
         <div class="col-md-4">
             <label class="form-label">Priority</label>
             <select name="priority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()">
-            <option value="All priorities"></option>
+            <option value="All priorities">All priorities</option>
             </select>
         </div>
         <div class="col-md-4">

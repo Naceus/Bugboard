@@ -3,6 +3,7 @@ using System;
 using BugBoard.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugBoard.Api.Migrations
 {
     [DbContext(typeof(BugBoardDbContext))]
-    partial class BugBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515081234_AddBugReportLogs")]
+    partial class AddBugReportLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.27");
@@ -60,7 +63,7 @@ namespace BugBoard.Api.Migrations
                     b.Property<string>("AssignedTo")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("BugReportId")
+                    b.Property<int?>("BugReportId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
@@ -73,18 +76,14 @@ namespace BugBoard.Api.Migrations
 
                     b.HasIndex("BugReportId");
 
-                    b.ToTable("BugReportLogs");
+                    b.ToTable("BugReportLog");
                 });
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
-                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
+                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", null)
                         .WithMany("Logs")
-                        .HasForeignKey("BugReportId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BugReport");
+                        .HasForeignKey("BugReportId");
                 });
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReport", b =>
