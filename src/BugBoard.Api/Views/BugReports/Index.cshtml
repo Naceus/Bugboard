@@ -7,6 +7,10 @@
 <form asp-action="Index" method="get" class="mb-3">
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
+            <label class="form-label">Search</label>
+            <input name="title" class="form-control" value="@ViewData["SelectedTitle"]" />
+        </div>
+        <div class="col-md-4">
             <label class="form-label">Status</label>
             <select name="status"  class="form-select" asp-items="Html.GetEnumSelectList<BugStatus>()">
                <option value="">All statuses</option>
@@ -19,7 +23,7 @@
             </select>
         </div>
         <div class="col-md-4">
-            <button type="submit" class="btn btn-primary">Apply filters</button>
+            <button type="submit" class="btn btn-primary">Search</button>
             <a asp-action="Index" class="btn btn-secondary">Reset</a>
         </div>
     </div>
