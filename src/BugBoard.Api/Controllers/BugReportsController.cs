@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using BugBoard.Api.Data;
+﻿using BugBoard.Api.Data;
 using BugBoard.Api.Models.BugReports;
+using BugBoard.Api.Services.BugReports;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugBoard.Api.Controllers
 {
     public class BugReportsController : Controller
     {
         private readonly BugBoardDbContext _context;
-
-        public BugReportsController(BugBoardDbContext context)
+        private readonly BugReportChangeService _bugReportChangeService;
+        public BugReportsController(BugBoardDbContext context, BugReportChangeService bugReportChangeService)
         {
             _context = context;
+            _bugReportChangeService = bugReportChangeService;
         }
 
         // GET: BugReports
@@ -38,7 +35,7 @@ namespace BugBoard.Api.Controllers
             }
 
 
-            ViewData["SelectedTitle"] = title;
+            ViewData["SelectedTitle"]       = title;
             ViewData["SelectedStatus"]      = status;
             ViewData["SelectedPriority"]    = priority;
 
@@ -54,6 +51,7 @@ namespace BugBoard.Api.Controllers
             }
 
             var bugReport = await _context.BugReports
+                .Include(b => b.Logs)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (bugReport == null)
             {
@@ -71,10 +69,9 @@ namespace BugBoard.Api.Controllers
 
         // POST: BugReports/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo,CreateAt,UpdatedAt")] BugReport bugReport)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo,CreateAt")] BugReport bugReport)
         {
             if (ModelState.IsValid)
             {
@@ -106,38 +103,58 @@ namespace BugBoard.Api.Controllers
 
         // POST: BugReports/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedTo,CreateAt,UpdatedAt")] BugReport bugReport)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
         {
             if (id != bugReport.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(bugReport);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BugReportExists(bugReport.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(bugReport);
             }
-            return View(bugReport);
+
+            var oldBugReport = await _context.BugReports
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (oldBugReport == null)
+            {
+                return NotFound();
+            }
+
+            var changes = _bugReportChangeService.GetChanges(oldBugReport, bugReport);
+            foreach( var change in changes)
+            {
+                AddChangeLog(bugReport.Id, change, bugReport.AssignedTo);                
+            }
+
+            bugReport.CreateAt = oldBugReport.CreateAt;
+            bugReport.UpdatedAt = changes.Any() ?  DateTime.Now : oldBugReport.UpdatedAt;
+           
+            try
+            {
+                _context.Update(bugReport);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BugReportExists(bugReport.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id});
         }
+         
 
         // GET: BugReports/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -176,5 +193,20 @@ namespace BugBoard.Api.Controllers
         {
             return _context.BugReports.Any(e => e.Id == id);
         }
+
+        private void AddChangeLog(int bugReportId ,BugReportChange change, string? assignedTo)
+        {
+            BugReportLog log = new()
+            {
+                BugReportId = bugReportId,
+                Message     = $"{change.FieldName} changed from {change.OldValue} to {change.NewValue}",
+                AssignedTo = assignedTo,
+                CreatedAt = DateTime.Now,
+            };
+            _context.BugReportLogs.Add(log);
+        }
+
+
+       
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 
 #nullable disable
 
@@ -21,8 +23,10 @@ namespace BugBoard.Api.Migrations
                     Priority = table.Column<int>(type: "INTEGER", nullable: false),
                     AssignedTo = table.Column<string>(type: "TEXT", nullable: true),
                     CreateAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Logs        = table.Column<int>(type: "INTEGER", nullable: false)
                 },
+                
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BugReports", x => x.Id);
