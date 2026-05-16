@@ -65,20 +65,28 @@
         </dd>
     </dl>
 </div>
-<div class="card">
-    @foreach(var log in Model.Logs)
-    {
-        <div class="card-body ">
-            <div class="d-flex gap-2 align-items-center w-100">
-                <span>@log.Message</span>
+<hr />
+@if (!Model.Logs.Any())
+{
+    <div class="card-body border text-muted">
+        No activity yet.
+    </div>
+}
+<div class="card pagination">
+        @foreach(var log in Model.Logs)
+        {
+            <div class="card-body ">
+                <div class="d-flex gap-2 align-items-center w-100">
+                    <span>@log.Message</span>
 
-                <small class="text-muted ms-auto">
-                    @log.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                </small>
+                    <small class="text-muted ms-auto">
+                        @log.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                    </small>
+                </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>    
+
 
 
 

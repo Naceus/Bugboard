@@ -1,6 +1,7 @@
 ﻿using BugBoard.Api.Data;
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
+using BugBoard.Api.ViewModels.BugReports;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +18,11 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports
-        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority, string? title)
+        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority, string? title, int page = 1)
         {
+            const int pageSize = 10;
+            page = Math.Max(page, 1);
+
             IQueryable<BugReport> bugReports = _context.BugReports;
 
             if (!string.IsNullOrWhiteSpace(title))
@@ -34,12 +38,29 @@ namespace BugBoard.Api.Controllers
                 bugReports = bugReports.Where(b => b.Priority == priority.Value);
             }
 
+            var totalItems = await bugReports.CountAsync();
+            var reports    = await bugReports
+                .OrderByDescending(b => b.UpdatedAt)
+                .ThenByDescending(b => b.CreateAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            var viewModel = new BugReportIndexViewModel
+            {
+                Reports          = reports,
+                SelectedStatus   = status,
+                SelectedPriority = priority,
+                Search           = title,
+                Pagination       = new PaginationViewModel
+                {
+                    CurrentPage = page,
+                    PageSize    = pageSize,
+                    TotalItems  = totalItems
+                }
+            };
 
-            ViewData["SelectedTitle"]       = title;
-            ViewData["SelectedStatus"]      = status;
-            ViewData["SelectedPriority"]    = priority;
 
-            return View(await bugReports.ToListAsync());
+            return View(viewModel);
         }
 
         // GET: BugReports/Details/5
@@ -50,8 +71,8 @@ namespace BugBoard.Api.Controllers
                 return NotFound();
             }
 
-            var bugReport = await _context.BugReports
-                .Include(b => b.Logs)
+            var bugReport   = await _context.BugReports
+                .Include(b  => b.Logs.OrderByDescending(l => l.CreatedAt))
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (bugReport == null)
             {
