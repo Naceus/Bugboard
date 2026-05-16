@@ -1,27 +1,37 @@
-﻿@model IEnumerable<BugReport>
+﻿
+@model BugReportIndexViewModel
 
-@{
-    ViewData["Title"] = "Index";
-}
 <h1 class="text-center ">Bug List</h1>
 <form asp-action="Index" method="get" class="mb-3">
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
             <label class="form-label">Search</label>
-            <input name="title" class="form-control" placeholder="Search title" value="@ViewData["SelectedTitle"]"/>
+            <input name="title" class="form-control" placeholder="Search title" value="@Model.Search"/>
             
         </div>
         <div class="col-md-4">
             <label class="form-label">Status</label>
-            <select name="status"  class="form-select" asp-items="Html.GetEnumSelectList<BugStatus>()">
+            <select name="status"  class="form-select">
                <option value="">All statuses</option>
+                    @foreach (var status in Enum.GetValues<BugStatus>())
+                        {
+                            <option value="@status" selected="(@Model.SelectedStatus == status)">
+                                @status
+                            </option>
+                        }
             </select>
         </div>
         <div class="col-md-4">
             <label class="form-label">Priority</label>
             <select name="priority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()">
             <option value="All priorities">All priorities</option>
-            </select>
+                    @foreach(var priority in Enum.GetValues<BugPriority>())
+                        {
+                            <option value="@priority" selected="@(Model.SelectedPriority == priority)">
+                                @priority
+                            </option>
+                        }
+                    </select>
         </div>
         <div class="col-md-4">
             <button type="submit" class="btn btn-primary">Search</button>
@@ -34,31 +44,30 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                Title
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                Description
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                Status
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Priority)
+                Priority
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AssignedTo)
+                AssignedTo
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreateAt)
+               CreateAt
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
+                UpdatedAt
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Reports) {
             <tr onclick="location.href='@Url.Action("Details", new { id = item.Id })'"
                 style="cursor: pointer;">
             <td>
@@ -88,6 +97,7 @@
     </tbody>
 </table>
 </div>
+<partial name="_Pagination" model="Model" />
 <p>
     <a class="btn btn-success" asp-action="Create">Create New</a>
 </p>
