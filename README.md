@@ -109,12 +109,11 @@ Update-Database
 
 or with the .NET CLI:
 
-dotnet ef database update
-
+dotnet ef database update --project src/BugBoard.Api
 
 ---
 
 4. Start the application
 
-dotnet run
+dotnet run --project src/BugBoard.Api 
 
