@@ -1,0 +1,58 @@
+﻿@model BugReportIndexViewModel
+
+<div class="card">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assigned To</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Reports.Any())
+            {
+                @foreach (var item in Model.Reports)
+                {
+                    <tr onclick="location.href='@Url.Action("Details", "BugReports", new { id = item.Id })'"
+                        style="cursor: pointer;">
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @item.Description
+                        </td>
+                        <td>
+                            <partial name="_StatusBadge" model="item.Status" />
+                        </td>
+                        <td>
+                            <partial name="_PriorityBadge" model="item.Priority" />
+                        </td>
+                        <td>
+                            @item.AssignedTo
+                        </td>
+                        <td>
+                            @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
+                        </td>
+                        <td>
+                            @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        No bug reports found.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

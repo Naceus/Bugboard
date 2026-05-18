@@ -2,11 +2,11 @@
 @model BugReportIndexViewModel
 
 <h1 class="text-center ">Bug List</h1>
-<form asp-action="Index" method="get" class="mb-3">
+<form id="bugReportFilterForm" asp-action="Index" method="get" class="mb-3">
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
             <label class="form-label">Search</label>
-            <input name="title" class="form-control" placeholder="Search title" value="@Model.Search"/>
+            <input name="title" id="titleSearch" class="form-control" placeholder="Search title" value="@Model.Search"/>
             
         </div>
         <div class="col-md-4">
@@ -15,7 +15,7 @@
                <option value="">All statuses</option>
                     @foreach (var status in Enum.GetValues<BugStatus>())
                         {
-                            <option value="@status" selected="(@Model.SelectedStatus == status)">
+                            <option value="@status" selected="@(Model.SelectedStatus == status)">
                                 @status
                             </option>
                         }
@@ -23,8 +23,8 @@
         </div>
         <div class="col-md-4">
             <label class="form-label">Priority</label>
-            <select name="priority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()">
-            <option value="All priorities">All priorities</option>
+            <select name="priority" class="form-select">
+            <option value="">All priorities</option>
                     @foreach(var priority in Enum.GetValues<BugPriority>())
                         {
                             <option value="@priority" selected="@(Model.SelectedPriority == priority)">
@@ -33,71 +33,23 @@
                         }
                     </select>
         </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary">Search</button>
+        <div class="col-md-4 d-flex gap-2">
             <a asp-action="Index" class="btn btn-secondary">Reset</a>
         </div>
     </div>
 </form>
-<div class="card">
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Status
-            </th>
-            <th>
-                Priority
-            </th>
-            <th>
-                AssignedTo
-            </th>
-            <th>
-               CreateAt
-            </th>
-            <th>
-                UpdatedAt
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Reports) {
-            <tr onclick="location.href='@Url.Action("Details", new { id = item.Id })'"
-                style="cursor: pointer;">
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-            <partial name="_StatusBadge" model="item.Status"/>
-            </td>
-            <td>
-              <partial name="_PriorityBadge" model="item.Priority"/>
-                
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AssignedTo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreateAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div id="bugReportTableContainer">
+    <partial name="_BugReportTable" model="Model" />
+    <partial name="_Pagination" model="Model" />
 </div>
-<partial name="_Pagination" model="Model" />
 <p>
     <a class="btn btn-success" asp-action="Create">Create New</a>
 </p>
+
+
+
+
+
+@section Scripts{
+    <script src="~/js/bugboard-search.js" asp-append-version="true"></script>
+}
