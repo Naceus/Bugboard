@@ -1,10 +1,11 @@
+using BugBoard.Api.Models.Account;
 using BugBoard.Api.Models.BugReports;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugBoard.Api.Data;
 
-public class BugBoardDbContext : IdentityDbContext
+public class BugBoardDbContext : IdentityDbContext<ApplicationUser>
 {
     public BugBoardDbContext(DbContextOptions<BugBoardDbContext> opts) : base(opts) { }
 

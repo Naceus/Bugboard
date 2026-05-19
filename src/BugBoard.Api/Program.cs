@@ -1,4 +1,5 @@
 using BugBoard.Api.Data;
+using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ internal class Program
 
         //Add Identity for login
         builder.Services
-            .AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<BugBoardDbContext>();
+            .AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<BugBoardDbContext>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
