@@ -2,11 +2,14 @@
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.ViewModels.BugReports;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace BugBoard.Api.Controllers
 {
+    [Authorize]
     public class BugReportsController : Controller
     {
         private readonly BugBoardDbContext _context;
