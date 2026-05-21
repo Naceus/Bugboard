@@ -1,4 +1,15 @@
-﻿.login-inner {
+﻿html,
+body {
+    margin: 0;
+}
+
+.login-body {
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.login-inner {
     max-width: 430px;
 }
 
@@ -52,3 +63,4 @@
         font-size: 14px;
         line-height: 1.5;
     }
+

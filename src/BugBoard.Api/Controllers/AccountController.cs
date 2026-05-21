@@ -1,7 +1,9 @@
 ﻿using BugBoard.Api.Models.Account;
 using BugBoard.Api.ViewModels.Account;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 
 namespace BugBoard.Api.Controllers
 {
@@ -18,7 +20,7 @@ namespace BugBoard.Api.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return RedirectToAction("Index", "BugReports");
         }
 
         [HttpPost]
@@ -48,6 +50,50 @@ namespace BugBoard.Api.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public ActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {   
+                var user = new ApplicationUser
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.EmailAddress,
+                    UserName = model.EmailAddress
+                };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    AddErrors(result);
+                }
+            }
+                return View(model);
+
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
         }
     }
 }
