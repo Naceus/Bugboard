@@ -3,7 +3,6 @@ using BugBoard.Api.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol;
 
 namespace BugBoard.Api.Controllers
 {
@@ -20,10 +19,15 @@ namespace BugBoard.Api.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return RedirectToAction("Index", "BugReports");
+            if(User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "BugReports");
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -53,6 +57,7 @@ namespace BugBoard.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult Register()
         {
             return View();
@@ -77,7 +82,7 @@ namespace BugBoard.Api.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "BugReports");
                 }
                 else
                 {
