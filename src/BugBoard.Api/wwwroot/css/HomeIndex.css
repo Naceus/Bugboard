@@ -1,0 +1,66 @@
+﻿html,
+body {
+    margin: 0;
+}
+
+.login-body {
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.login-inner {
+    max-width: 430px;
+}
+
+.login-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background-color: #0d6efd;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.login-button {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.login-hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #263451 100%);
+    color: #ffffff;
+}
+
+.login-hero {
+    max-width: 620px;
+}
+
+    .login-hero .lead {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+.login-feature-card {
+    padding: 20px;
+    border-radius: 18px;
+    background-color: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+}
+
+    .login-feature-card h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .login-feature-card p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
