@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BugBoard.Api.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -23,7 +24,16 @@
                             <a class="nav-link text-dark" asp-controller="BugReports" asp-action="Index">Bug Reports</a>
                         </li>
                     </ul>
-                </div>
+                    @if(User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger">
+                                    Logout
+                                </button>
+                            </form>
+                        }
+                    </div>
             </div>
         </nav>
     </header>

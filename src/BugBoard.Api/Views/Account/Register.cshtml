@@ -1,0 +1,98 @@
+﻿@model RegisterViewModel
+
+@{
+    Layout = "_AuthLayout"; 
+    ViewData["Title"] = "Register";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Register.css" asp-append-version="true" />
+}
+
+<div class="register-page d-flex align-items-center justify-content-center p-4">
+    <div class="register-card card shadow-sm w-100">
+        <div class="card-header bg-white text-center">
+            <h1 class="fw-bold mb-2">Register</h1>
+            <p class="text-muted mb-0">Create a new account</p>
+        </div>
+
+        <div class="card-body">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <p class="fw-bold mb-2">Name</p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="visually-hidden"></label>
+                        <input asp-for="FirstName"
+                               class="form-control"
+                               placeholder="First name"
+                               autocomplete="given-name" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="visually-hidden"></label>
+                        <input asp-for="LastName"
+                               class="form-control"
+                               placeholder="Last name"
+                               autocomplete="family-name" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EmailAddress" class="form-label fw-bold">
+                        Email Address
+                    </label>
+                    <input asp-for="EmailAddress"
+                           class="form-control"
+                           placeholder="name@example.com"
+                           autocomplete="email" />
+                    <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-bold"></label>
+                    <input asp-for="Password"
+                           class="form-control"
+                           placeholder="Password"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label fw-bold">
+                        Confirm Password
+                    </label>
+                    <input asp-for="ConfirmPassword"
+                           class="form-control"
+                           placeholder="Confirm password"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="btn btn-dark">
+                        Back to Login
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        Create account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
