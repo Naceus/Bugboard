@@ -81,15 +81,21 @@ namespace BugBoard.Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "BugReports");
+                    var roleResult = await _userManager.AddToRoleAsync(user, ApplicationRoles.Reporter);
+                    if (roleResult.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("Index", "BugReports");
+                    }
+                    await _userManager.DeleteAsync(user);
+                    AddErrors(roleResult);
                 }
                 else
                 {
                     AddErrors(result);
                 }
             }
-                return View(model);
+            return View(model);
 
         }
 
