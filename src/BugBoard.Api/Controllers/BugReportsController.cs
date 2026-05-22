@@ -44,6 +44,7 @@ namespace BugBoard.Api.Controllers
 
             var bugReport = await _context.BugReports
                 .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
+                .Include(b => b.CreatedByUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (bugReport == null)
             {

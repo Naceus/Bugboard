@@ -11,7 +11,7 @@
     <div class="mb-3">
         <div class="d-flex gap-2 align-items-center w-100">
             <a class="btn btn-dark" asp-action="Index">Back</a>
-            @if (User.IsInRole(ApplicationRoles.AdminDeveloper))
+            @if (User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer))
             {
                 <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
                 
@@ -19,8 +19,8 @@
             @if (User.IsInRole(ApplicationRoles.Admin))
             {
                 <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
-                      onsubmit="return confirm('Are you sure want to delete this bug report?');" class="ms-auto">
-                    <input type="hidden" asp-for="Id" />
+                    onsubmit="return confirm('Are you sure want to delete this bug report?');" class="ms-auto">
+                    @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>                
             }
@@ -40,6 +40,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedByUser)
+        </dt>
+        <dd class=" col-sm-10">
+            @Html.DisplayFor(model => model.CreatedByUser.FirstName)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Status)
         </dt>
@@ -57,7 +63,7 @@
             @Html.DisplayNameFor(model => model.AssignedTo)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AssignedTo)
+        @(Model.CreatedByUser != null ? $"{Model.CreatedByUser.FirstName} {Model.CreatedByUser.LastName}" : "Unknown")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.CreateAt)
@@ -80,10 +86,10 @@
         No activity yet.
     </div>
 }
-<div class="card pagination">
+<div class="card">
         @foreach(var log in Model.Logs)
         {
-            <div class="card-body ">
+            <div class="card-body">
                 <div class="d-flex gap-2 align-items-center w-100">
                     <span>@log.Message</span>
 
