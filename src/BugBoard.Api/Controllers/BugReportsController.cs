@@ -4,8 +4,10 @@ using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.ViewModels.BugReports;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Providers;
 
 namespace BugBoard.Api.Controllers
 {
@@ -14,10 +16,12 @@ namespace BugBoard.Api.Controllers
     {
         private readonly BugBoardDbContext _context;
         private readonly BugReportChangeService _bugReportChangeService;
-        public BugReportsController(BugBoardDbContext context, BugReportChangeService bugReportChangeService)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public BugReportsController(BugBoardDbContext context, BugReportChangeService bugReportChangeService, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _bugReportChangeService = bugReportChangeService;
+            _userManager = userManager;
         }
 
         // GET: BugReports
@@ -30,6 +34,7 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports/Details/5
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,6 +50,11 @@ namespace BugBoard.Api.Controllers
                 return NotFound();
             }
 
+            if (!CanViewBugReport(bugReport))
+            {
+                return Forbid();
+            }
+            
             return View(bugReport);
         }
 
@@ -62,10 +72,13 @@ namespace BugBoard.Api.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
+                bugReport.CreatedByUserId = userId;
                 bugReport.CreateAt = DateTime.UtcNow;
 
                 _context.Add(bugReport);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(bugReport);
@@ -213,8 +226,8 @@ namespace BugBoard.Api.Controllers
         }
 
         /// <summary>
-        /// Builds the view model fpr bug report index page.
-        /// Applies search, filters, sortig and pagination.
+        /// Builds the view model for bug report index page.
+        /// Applies search, filters, sorting and pagination.
         /// </summary>
         /// <param name="status">Optional status filter.</param>
         /// <param name="priority">Optional priority filter.</param>
@@ -227,6 +240,13 @@ namespace BugBoard.Api.Controllers
             page = Math.Max(page, 1);
 
             IQueryable<BugReport> bugReports = _context.BugReports;
+
+            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            if (!canViewAllReports)
+            {
+                var currentUserId = _userManager.GetUserId(User);
+                bugReports = bugReports.Where(b => b.CreatedByUserId == currentUserId);
+            }
 
             if (!string.IsNullOrWhiteSpace(title))
             {
@@ -241,6 +261,7 @@ namespace BugBoard.Api.Controllers
                 bugReports = bugReports.Where(b => b.Priority == priority.Value);
             }
 
+
             var totalItems = await bugReports.CountAsync();
             var reports = await bugReports
                 .OrderByDescending(b => b.UpdatedAt)
@@ -248,6 +269,7 @@ namespace BugBoard.Api.Controllers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
             return new BugReportIndexViewModel
             {
                 Reports = reports,
@@ -261,6 +283,16 @@ namespace BugBoard.Api.Controllers
                     TotalItems = totalItems
                 }
             };
+        }
+        private bool CanViewBugReport(BugReport bugReport)
+        {
+            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+
+            var currentUserId = _userManager.GetUserId(User);
+            var isOwner = currentUserId == bugReport.CreatedByUserId;
+            
+            return canViewAllReports || isOwner;                
+
         }
     }
 }
