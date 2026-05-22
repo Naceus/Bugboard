@@ -5,7 +5,6 @@ using BugBoard.Api.ViewModels.BugReports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace BugBoard.Api.Controllers
 {
@@ -58,11 +57,11 @@ namespace BugBoard.Api.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo,CreateAt")] BugReport bugReport)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
         {
             if (ModelState.IsValid)
             {
-                bugReport.CreateAt = DateTime.Now;
+                bugReport.CreateAt = DateTime.UtcNow;
 
                 _context.Add(bugReport);
                 await _context.SaveChangesAsync();
@@ -84,7 +83,6 @@ namespace BugBoard.Api.Controllers
             {
                 return NotFound();
             }
-            bugReport.UpdatedAt = DateTime.Now;
             return View(bugReport);
         }
 
@@ -120,7 +118,7 @@ namespace BugBoard.Api.Controllers
             }
 
             bugReport.CreateAt = oldBugReport.CreateAt;
-            bugReport.UpdatedAt = changes.Any() ? DateTime.Now : oldBugReport.UpdatedAt;
+            bugReport.UpdatedAt = changes.Any() ? DateTime.UtcNow: oldBugReport.UpdatedAt;
 
             try
             {
@@ -187,7 +185,12 @@ namespace BugBoard.Api.Controllers
             return _context.BugReports.Any(e => e.Id == id);
         }
 
-
+        /// <summary>
+        /// Create a Log entry for a single bug report change and adds it to the database context.
+        /// </summary>
+        /// <param name="bugReportId">The id for the bug report that was changed.</param>
+        /// <param name="change">The detected field change that should be logged.</param>
+        /// <param name="assignedTo">The user or developer currently assigned to the bug report.</param>
         private void AddChangeLog(int bugReportId, BugReportChange change, string? assignedTo)
         {
             BugReportLog log = new()
@@ -195,18 +198,20 @@ namespace BugBoard.Api.Controllers
                 BugReportId = bugReportId,
                 Message = $"{change.FieldName} changed from {change.OldValue} to {change.NewValue}",
                 AssignedTo = assignedTo,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
             };
             _context.BugReportLogs.Add(log);
         }
 
-
-        // Builds the view model for bug report index page
-        //param status   = optional stauts filter
-        //param priority = optional priority filter
-        //param title    = optional title search term
-        //param page     = current page number
-        //return         = prepared view model for index view
+        /// <summary>
+        /// Builds the view model fpr bug report index page.
+        /// Applies search, filters, sortig and pagination.
+        /// </summary>
+        /// <param name="status">Optional status filter.</param>
+        /// <param name="priority">Optional priority filter.</param>
+        /// <param name="title">Optional Title search.</param>
+        /// <param name="page">Current page number.</param>
+        /// <returns>A prepared view model for the Index view.</returns>
         private async Task<BugReportIndexViewModel> BuildIndexViewModel(BugStatus? status, BugPriority? priority, string? title, int page)
         {
             const int pageSize = 10;
