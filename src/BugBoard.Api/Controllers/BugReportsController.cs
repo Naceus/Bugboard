@@ -1,4 +1,5 @@
 ﻿using BugBoard.Api.Data;
+using BugBoard.Api.Models.Account;
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.ViewModels.BugReports;
@@ -71,6 +72,7 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports/Edit/5
+        [Authorize(Roles = ApplicationRoles.AdminDeveloper)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -90,6 +92,7 @@ namespace BugBoard.Api.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.AdminDeveloper)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
         {
             if (id != bugReport.Id)
@@ -138,10 +141,12 @@ namespace BugBoard.Api.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+
         }
 
 
         // GET: BugReports/Delete/5
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -157,11 +162,13 @@ namespace BugBoard.Api.Controllers
             }
 
             return View(bugReport);
+
         }
 
         // POST: BugReports/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var bugReport = await _context.BugReports.FindAsync(id);
@@ -172,7 +179,9 @@ namespace BugBoard.Api.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+
         }
+
         public async Task<IActionResult> Search(BugStatus? status, BugPriority? priority, string? title, int page = 1)
         {
             var viewModel = await BuildIndexViewModel(status, priority, title, page);
