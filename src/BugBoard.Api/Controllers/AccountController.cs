@@ -33,7 +33,7 @@ namespace BugBoard.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View("~/Views/Home/Index.cshtml", model);
             }
             var result = await _signInManager.PasswordSignInAsync(
                 model.EmailAddress,
