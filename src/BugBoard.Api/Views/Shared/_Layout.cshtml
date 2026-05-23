@@ -21,19 +21,25 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="BugReports" asp-action="Index">Bug Reports</a>
+                            <a class="navbar-brand" asp-controller="BugReports" asp-action="Index">Bug Reports</a>
                         </li>
+                        @if (User.IsInRole(ApplicationRoles.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="navbar-brand" asp-controller="Admin" asp-action="Index">Admin Area</a>
+                            </li>
+                        }
                     </ul>
                     @if(User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger">
-                                    Logout
-                                </button>
-                            </form>
-                        }
-                    </div>
+                    {
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger">
+                                Logout
+                            </button>
+                        </form>
+                    }
+                </div>
             </div>
         </nav>
     </header>
