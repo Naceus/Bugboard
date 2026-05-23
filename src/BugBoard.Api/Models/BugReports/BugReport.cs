@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BugBoard.Api.Models.Account;
+using System.ComponentModel.DataAnnotations;
 namespace BugBoard.Api.Models.BugReports;
 
 public class BugReport
@@ -16,6 +17,8 @@ public class BugReport
     public string? AssignedTo { get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public string? CreatedByUserId { get; set; }
+    public ApplicationUser? CreatedByUser { get; set; }
 
     public List<BugReportLog> Logs { get; set; } = new();
 }

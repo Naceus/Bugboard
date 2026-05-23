@@ -1,4 +1,4 @@
-﻿@model BugBoard.Api.Models.BugReports.BugReport
+﻿@model BugReport
 
 @{
     ViewData["Title"] = "Create";
@@ -21,20 +21,23 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugStatus>()"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Priority" class="control-label"></label>
                 <select asp-for="Priority" class="form-control" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugPriority>()"></select>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @if (User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer))
+            {
+                <div class="form-group">
+                    <label asp-for="Status" class="control-label"></label>
+                    <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<BugBoard.Api.Models.BugReports.BugStatus>()"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                 <label asp-for="AssignedTo" class="control-label"></label>
                 <input asp-for="AssignedTo" class="form-control" />
                 <span asp-validation-for="AssignedTo" class="text-danger"></span>
-            </div>
+                </div>
+            }
     
             <div class="form-group mt-3">
                 <a class="btn btn-dark" asp-action="Index">Back</a>

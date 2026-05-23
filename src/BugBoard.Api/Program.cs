@@ -1,4 +1,5 @@
 using BugBoard.Api.Data;
+using BugBoard.Api.Data.Seed;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using Microsoft.AspNetCore.Identity;
@@ -19,11 +20,18 @@ internal class Program
         builder.Services
             .AddScoped<BugReportChangeService>();
 
+        builder.Services
+            .AddScoped<DatabaseSeeder>();
         //Add Identity for login
         builder.Services
             .AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<BugBoardDbContext>();
         var app = builder.Build();
 
+        using(var scope = app.Services.CreateScope())
+        {
+            var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            seeder.SeedAsync().GetAwaiter().GetResult();
+        }
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
@@ -36,7 +44,7 @@ internal class Program
         app.UseStaticFiles();
 
         app.UseRouting();
-
+        
         app.UseAuthentication();
         app.UseAuthorization();
 
