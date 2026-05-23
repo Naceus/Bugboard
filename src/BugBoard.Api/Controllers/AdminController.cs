@@ -37,7 +37,7 @@ namespace BugBoard.Api.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> EditRoles(string? id)
+		public async Task<IActionResult> EditUser(string? id)
 		{
 			if (string.IsNullOrWhiteSpace(id)){
 				return NotFound();
@@ -48,7 +48,7 @@ namespace BugBoard.Api.Controllers
 				return NotFound();
 			}
 
-			var model = await BuildEditUserRolesViewModelAsync(user);
+			var model = await BuildEditUserViewModelAsync(user);
 
 			return View(model);
 
@@ -56,7 +56,7 @@ namespace BugBoard.Api.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> EditRoles(string id, EditUserRolesViewModel model)
+		public async Task<IActionResult> EditUser(string id, EditUserViewModel model)
 		{
 			if (id != model.UserId){
 				return NotFound();
@@ -69,56 +69,60 @@ namespace BugBoard.Api.Controllers
 			}
 
 			if (!ModelState.IsValid){
-				var viewModel = await BuildEditUserRolesViewModelAsync(user);
-				viewModel.SelectedRole = model.SelectedRole;
-
+				var viewModel = await BuildEditUserErrorVieModelAsync(user, model);
+				
 				return View(viewModel);
 
 			}
 			if (!isValidRole(model.SelectedRole)){
 				ModelState.AddModelError(nameof(model.SelectedRole), "Invalid role selected.");
 
-				var viewModel = await BuildEditUserRolesViewModelAsync(user);
-				viewModel.SelectedRole = model.SelectedRole;
+				var viewModel = await BuildEditUserErrorVieModelAsync(user, model);
 
 				return View(viewModel);
 			}
 
-			var currentRoles = await _userManager.GetRolesAsync(user);
-			if(currentRoles.Any()){
+			if(IsRemovinOwnAdminRole(user, model.SelectedRole)){
 
-				var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-				if (!removeResult.Succeeded){
-					AddErrors(removeResult);
+				ModelState.AddModelError(string.Empty, "You cannot remove your own admin role,");
 
-					var viewModel = await BuildEditUserRolesViewModelAsync(user);
-					viewModel.SelectedRole = model.SelectedRole;
-					return View(viewModel);
-				}
+				var viewModel = await BuildEditUserErrorVieModelAsync(user, model);
+				return View(viewModel);
 			}
-			;
-			
-			var addResult = await _userManager.AddToRoleAsync(user, model.SelectedRole);
-			if (!addResult.Succeeded)
+
+			UpdateUserData(user, model);
+
+			var updateResult = await _userManager.UpdateAsync(user);
+
+			if (!updateResult.Succeeded)
 			{
-				AddErrors(addResult);
+				AddErrors(updateResult);
 
-				var viewModel = await BuildEditUserRolesViewModelAsync(user);
-				viewModel.SelectedRole = model.SelectedRole;
-				return View(viewModel);
+                var viewModel = await BuildEditUserErrorVieModelAsync(user, model);
+                return View(viewModel);
+			}
+			var roleResult = await UpdateUserRoleAsync(user, model.SelectedRole);
+
+			if (!roleResult.Succeeded)
+			{
+				AddErrors(roleResult);
+
+                var viewModel = await BuildEditUserErrorVieModelAsync(user, model);
+                return View(viewModel);
 			}
 			return RedirectToAction(nameof(Index));
 
 		}
-		private async Task<EditUserRolesViewModel> BuildEditUserRolesViewModelAsync(ApplicationUser user) {
+		private async Task<EditUserViewModel> BuildEditUserViewModelAsync(ApplicationUser user) {
 
 			var roles = await _userManager.GetRolesAsync(user);
 
-			return new EditUserRolesViewModel
+			return new EditUserViewModel
 			{
 				UserId = user.Id,
 				Email = user.Email ?? string.Empty,
-				FullName = $"{user.FirstName} {user.LastName}",
+				FirstName = user.FirstName,
+				LastName = user.LastName,
 				SelectedRole = roles.FirstOrDefault() ?? string.Empty,
 				AvailableRoles = new List<string>
 				{
@@ -136,6 +140,45 @@ namespace BugBoard.Api.Controllers
 				ModelState.AddModelError(string.Empty, error.Description);
 			}
 		}
+		private static void CopyPostedValues(EditUserViewModel source, EditUserViewModel target)
+		{
+			target.FirstName = source.FirstName;
+			target.LastName = source.LastName;
+			target.Email = source.Email;
+			target.SelectedRole = source.SelectedRole;
+		}
+
+		private async Task<EditUserViewModel> BuildEditUserErrorVieModelAsync(ApplicationUser user, EditUserViewModel postedModel)
+		{
+			var viewModel = await BuildEditUserViewModelAsync(user);
+			CopyPostedValues(postedModel, viewModel);
+
+			return viewModel;
+		}
+
+		private static void UpdateUserData(ApplicationUser user, EditUserViewModel model)
+		{
+			user.FirstName = model.FirstName;
+			user.LastName = model.LastName;
+			user.Email = model.Email;
+			user.UserName = model.Email;
+		}
+
+		private async Task<IdentityResult> UpdateUserRoleAsync(ApplicationUser user, string selectedRole)
+		{
+			var currentRoles = await _userManager.GetRolesAsync(user);
+
+			if (currentRoles.Any())
+			{
+				var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+				if (!removeResult.Succeeded)
+				{
+					return removeResult;
+				}
+			}
+			return await _userManager.AddToRoleAsync(user, selectedRole);
+		}
 
 		private static List<string> GetAvailableRoles()
 		{
@@ -150,6 +193,12 @@ namespace BugBoard.Api.Controllers
 		private static bool isValidRole(string role)
 		{
 			return GetAvailableRoles().Contains(role);
+		}
+
+		private bool IsRemovinOwnAdminRole(ApplicationUser user, string selectedRole)
+		{
+			var currentUserId = _userManager.GetUserId(User);
+			return user.Id == currentUserId && selectedRole != ApplicationRoles.Admin;
 		}
 
 	}
