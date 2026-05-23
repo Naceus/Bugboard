@@ -10,7 +10,7 @@
                 asp-route-page ="@(Model.Pagination.CurrentPage - 1)"
                 asp-route-status ="@Model.SelectedStatus"
                 asp-route-priority = "@Model.SelectedPriority"
-                asp-route-search ="@Model.Search">Previous</a>
+                asp-route-search ="@Model.Search">Back</a>
             </li>
     
     @for (int i = 1; i<= Model.Pagination.TotalPage; i++)
