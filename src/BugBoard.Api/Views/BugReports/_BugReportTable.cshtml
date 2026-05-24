@@ -1,7 +1,7 @@
 ﻿@model BugReportIndexViewModel
 
 <div class="card">
-    <table class="table table-hover mb-0">
+    <table class="table table-hover mb-0 clickable-table">
         <thead>
             <tr>
                 <th>Title</th>
@@ -19,28 +19,53 @@
             {
                 @foreach (var item in Model.Reports)
                 {
-                    <tr onclick="location.href='@Url.Action("Details", "BugReports", new { id = item.Id })'"
-                        style="cursor: pointer;">
+                    var detailsUrl = Url.Action("Details", "BugReports", new { id = item.Id });
+                    var ariaLabel = $"Open bug report {item.Title}";
+                    <tr>
                         <td>
-                            @item.Title
+                            <a href="@detailsUrl"
+                                class="table-row-link"
+                                aria-label="@ariaLabel">
+                                    @item.Title
+                            </a>
                         </td>
                         <td>
-                            @item.Description
+                            <a href="@detailsUrl"
+                            class="table-row-link"
+                            aria-label="@ariaLabel">
+                                    @item.Description
+                            </a>
                         </td>
                         <td>
-                            <partial name="_StatusBadge" model="item.Status" />
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                <partial name="_StatusBadge" model="item.Status" />
+                            </a>
                         </td>
                         <td>
-                            <partial name="_PriorityBadge" model="item.Priority" />
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                <partial name="_PriorityBadge" model="item.Priority" />
+                            </a>
                         </td>
                         <td>
-                            @item.AssignedTo
+                            <a href="@detailsUrl"
+                               class="table-row-link"
+                               aria-label="@ariaLabel">
+                                    @item.AssignedTo
+                            </a>
                         </td>
                         <td>
-                            @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
+                            <a href="@detailsUrl"
+                               class="table-row-link"
+                               aria-label="@ariaLabel">
+                                 @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
+                            </a>
                         </td>
                         <td>
-                            @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                            <a href="@detailsUrl"
+                               class="table-row-link"
+                               aria-label="@ariaLabel">
+                                    @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                            </a>
                         </td>
                     </tr>
                 }
