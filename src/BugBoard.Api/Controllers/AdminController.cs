@@ -20,22 +20,12 @@ namespace BugBoard.Api.Controllers
 		/// <summary>
 		/// Display an overview of all registered users with their assigned roles.
 		/// </summary>
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(string? search, string? role)
 		{
-			var users = await _userManager.Users.ToListAsync();
-			var model = new List<AdminUserListItemViewModel>();
+			
+			var viewModel = await BuildAdminUserIndexAsync(search, role);
 
-			foreach (var user in users){
-				var roles = await _userManager.GetRolesAsync(user);
-				model.Add(new AdminUserListItemViewModel
-				{
-					Id = user.Id,
-					Email = user.Email ?? string.Empty,
-					FullName = $"{user.FirstName} {user.LastName}".Trim(),
-					Roles = string.Join(", ", roles)
-				});
-			}
-			return View(model);
+			return View(viewModel);
 
 		}
 		/// <summary>
@@ -146,10 +136,11 @@ namespace BugBoard.Api.Controllers
 			};
 		}
 
+		
 		/// <summary>
 		/// Adds Identity errors to the current model state so they can be displayed in the view.
 		/// </summary>
-		/// <param name="result">The Identity result contraining validation or update errors</param>
+		/// <param name="result">The Identity result containing validation or update errors</param>
 		private void AddErrors(IdentityResult result)
 		{
 			foreach (var error in result.Errors)
@@ -239,7 +230,63 @@ namespace BugBoard.Api.Controllers
 			return user.Id == currentUserId && selectedRole != ApplicationRoles.Admin;
 		}
 
-	}
+		private async Task<AdminUserIndexViewModel> BuildAdminUserIndexAsync(string? search, string? role) {
+
+			var users = await BuildAdminUserListAsync();
+			if (!string.IsNullOrWhiteSpace(search))
+			{
+				users = users
+					.Where(u => 
+					u.FullName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					u.Email.Contains(search, StringComparison.OrdinalIgnoreCase))
+					.ToList();
+			}
+
+			if (!string.IsNullOrWhiteSpace(role))
+			{
+				users = users
+					.Where(u => u.Roles.Split(", ").Contains(role))
+					.ToList();
+			}
+
+			return new AdminUserIndexViewModel
+			{
+				Search = search,
+				SelectedRole = role,
+				AvailableRoles = GetAvailableRoles(),
+				Users = users
+			};
+		}
+
+        private async Task<List<AdminUserListItemViewModel>> BuildAdminUserListAsync()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            var model = new List<AdminUserListItemViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                model.Add(new AdminUserListItemViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email ?? string.Empty,
+                    FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                    Roles = string.Join(", ", roles)
+                });
+            }
+
+            return model;
+        }
+        public async Task<IActionResult> Search(string? search, string? role)
+        {
+            var model = await BuildAdminUserIndexAsync(search, role);
+
+            return PartialView("_AdminUserTable", model);
+        }
+
+
+    }
 }
 	
  

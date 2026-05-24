@@ -1,4 +1,4 @@
-﻿@model List<AdminUserListItemViewModel>
+﻿@model AdminUserIndexViewModel
 
 @{
     ViewData["Title"] = "Admin Area";
@@ -12,67 +12,45 @@
     </div>
 </div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No users found.
-    </div>
-}
-else
-{
-    <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <h2 class="h5 mb-0">Users</h2>
+<form id="adminUserFilterForm" asp-action="Index" method="get" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label for="adminUserSearch" class="form-label">Search</label>
+            <input name="search"
+                   id="adminUserSearch"
+                   class="form-control"
+                   placeholder="Search name or email"
+                   value="@Model.Search" />
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 clickable-table">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">Full Name</th>
-                        <th scope="col">Email Address</th>
-                        <th scope="col">Role</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model)
-                    {
-                        <tr>
-                            <td>
-                                <a asp-controller="Admin"
-                                   asp-action="EditUser"
-                                   asp-route-id="@user.Id"
-                                   class="table-row-link"
-                                   aria-label="Edit user @user.FullName @user.Email">
-                                    @user.FullName
-                                </a>
-                            </td>
+        <div class="col-md-4">
+            <label for="adminRoleFilter" class="form-label">Role</label>
+            <select name="role"
+                    id="adminRoleFilter"
+                    class="form-select">
+                <option value="">All roles</option>
 
-                            <td>
-                                <a asp-controller="Admin"
-                                   asp-action="EditUser"
-                                   asp-route-id="@user.Id"
-                                   class="table-row-link"
-                                   aria-label="Edit user @user.FullName @user.Email">
-                                    @user.Email
-                                </a>
-                            </td>
+                @foreach (var role in Model.AvailableRoles)
+                {
+                    <option value="@role" selected="@(Model.SelectedRole == role)">
+                        @role
+                    </option>
+                }
+            </select>
+        </div>
 
-                            <td>
-                                <a asp-controller="Admin"
-                                   asp-action="EditUser"
-                                   asp-route-id="@user.Id"
-                                   class="table-row-link"
-                                   aria-label="Edit user @user.FullName @user.Email">
-                                    <span class="badge bg-secondary">
-                                        @user.Roles
-                                    </span>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="col-md-2 d-flex gap-2">
+            <a asp-action="Index" class="btn btn-secondary w-100">
+                Reset
+            </a>
         </div>
     </div>
+</form>
+
+<div id="adminUserTableContainer">
+    <partial name="_AdminUserTable" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/admin-user-search.js" asp-append-version="true"></script>
 }
