@@ -1,0 +1,24 @@
+﻿.admin-user-table .table-row-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem;
+    margin: -0.75rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+    .admin-user-table .table-row-link:hover {
+        color: inherit;
+        text-decoration: none;
+    }
+
+.admin-user-table tbody tr {
+    cursor: pointer;
+}
+
+.admin-user-table .table-row-link:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+    border-radius: 0.25rem;
+}

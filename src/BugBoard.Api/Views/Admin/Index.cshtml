@@ -1,6 +1,11 @@
 ﻿@model List<AdminUserListItemViewModel>
+
 @{
     ViewData["Title"] = "Admin Area";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Admin.css" asp-append-version="true" />
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -9,6 +14,7 @@
         <p class="text-muted mb-0">Manage users and their roles.</p>
     </div>
 </div>
+
 @if (!Model.Any())
 {
     <div class="alert alert-info">
@@ -19,32 +25,51 @@ else
 {
     <div class="card shadow-sm">
         <div class="card-header bg-white">
-            <h2 class="h5 mn-0">Users</h2>
+            <h2 class="h5 mb-0">Users</h2>
         </div>
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 admin-user-table">
                 <thead class="table-light">
                     <tr>
-                        <th>Full Name</th>
-                        <th>Email Address</th>
-                        <th>Role</th>
-                        <th class="text-end">Actions</th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col">Email Address</th>
+                        <th scope="col">Role</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var user in Model)
+                    @foreach (var user in Model)
                     {
                         <tr>
-                            <td>@user.FullName</td>
-                            <td>@user.Email</td>
                             <td>
-                                <span class="badge bg-secondary">
-                                    @user.Roles
-                                </span>
+                                <a asp-controller="Admin"
+                                   asp-action="EditUser"
+                                   asp-route-id="@user.Id"
+                                   class="table-row-link"
+                                   aria-label="Edit user @user.FullName @user.Email">
+                                    @user.FullName
+                                </a>
                             </td>
-                            <td class="text-end">
-                                <a asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
-                                    Edit roles
+
+                            <td>
+                                <a asp-controller="Admin"
+                                   asp-action="EditUser"
+                                   asp-route-id="@user.Id"
+                                   class="table-row-link"
+                                   aria-label="Edit user @user.FullName @user.Email">
+                                    @user.Email
+                                </a>
+                            </td>
+
+                            <td>
+                                <a asp-controller="Admin"
+                                   asp-action="EditUser"
+                                   asp-route-id="@user.Id"
+                                   class="table-row-link"
+                                   aria-label="Edit user @user.FullName @user.Email">
+                                    <span class="badge bg-secondary">
+                                        @user.Roles
+                                    </span>
                                 </a>
                             </td>
                         </tr>
