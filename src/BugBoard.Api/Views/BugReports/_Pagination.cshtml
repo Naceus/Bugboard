@@ -2,35 +2,46 @@
 
 @if (Model.Pagination.TotalPage > 1)
 {
-    <nav class="mt-3">
-        <ul class ="pagination justify-content-center">
-            <li class ="page-item @(Model.Pagination.HasNextPage ? "" : "disabled")">
-                <a class ="page-link"
-                asp-action ="Index"
-                asp-route-page ="@(Model.Pagination.CurrentPage - 1)"
-                asp-route-status ="@Model.SelectedStatus"
-                asp-route-priority = "@Model.SelectedPriority"
-                asp-route-search ="@Model.Search">Back</a>
+    <nav class="mt-3" aria-label="Bug report pagination">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(Model.Pagination.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.Pagination.CurrentPage - 1)"
+                   asp-route-status="@Model.SelectedStatus"
+                   asp-route-priority="@Model.SelectedPriority"
+                   asp-route-title="@Model.Search"
+                   aria-disabled="@(!Model.Pagination.HasPreviousPage)"
+                   tabindex="@(Model.Pagination.HasPreviousPage ? "0" : "-1")">
+                    Back
+                </a>
             </li>
-    
-    @for (int i = 1; i<= Model.Pagination.TotalPage; i++)
-    {
-        <li class="page-item @(i == Model.Pagination.CurrentPage ?  "active" : "")">
-            <a class="page-link"
-            asp-action="Index"
-            asp-route-page="@i"
-            asp-route-status = "@Model.SelectedStatus"
-            asp-route-priority = "@Model.SelectedPriority"
-            asp-route-seach = "@Model.Search">@i</a>
-        </li>
-    }
-               <li class="page-item @(Model.Pagination.HasNextPage ? "" : "disabled")">
+
+            @for (int i = 1; i <= Model.Pagination.TotalPage; i++)
+            {
+                <li class="page-item @(i == Model.Pagination.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-status="@Model.SelectedStatus"
+                       asp-route-priority="@Model.SelectedPriority"
+                       asp-route-title="@Model.Search"
+                       aria-current="@(i == Model.Pagination.CurrentPage ? "page" : null)">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(Model.Pagination.HasNextPage ? "" : "disabled")">
                 <a class="page-link"
                    asp-action="Index"
                    asp-route-page="@(Model.Pagination.CurrentPage + 1)"
                    asp-route-status="@Model.SelectedStatus"
                    asp-route-priority="@Model.SelectedPriority"
-                   asp-route-title="@Model.Search">
+                   asp-route-title="@Model.Search"
+                   aria-disabled="@(!Model.Pagination.HasNextPage)"
+                   tabindex="@(Model.Pagination.HasNextPage ? "0" : "-1")">
                     Next
                 </a>
             </li>

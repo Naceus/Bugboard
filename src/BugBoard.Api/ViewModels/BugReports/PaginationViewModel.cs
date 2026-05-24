@@ -7,8 +7,8 @@
         public int TotalItems { get; set; }
 
         public int TotalPage => (int)Math.Ceiling(TotalItems / (double)PageSize);
-        public bool HaPreviousPage => CurrentPage > 1;
+        public bool HasPreviousPage => CurrentPage > 1;
         public bool HasNextPage => CurrentPage < TotalPage;
 
-            }
+    }
 }
