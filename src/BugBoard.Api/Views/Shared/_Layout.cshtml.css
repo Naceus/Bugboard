@@ -1,48 +1,189 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿.app-shell {
+    display: flex;
+    min-height: 100vh;
 }
 
-a {
-  color: #0077cc;
+.app-sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #172033 0%, #0f172a 100%);
+    color: #d1d5db;
+    padding: 24px 18px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    box-shadow: 8px 0 24px rgba(15, 23, 42, 0.12);
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.app-sidebar a,
+.app-sidebar a:hover,
+.app-sidebar a:focus,
+.app-sidebar a:visited {
+    color: inherit !important;
+    text-decoration: none !important;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.sidebar-brand {
+    padding: 6px 10px 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none !important;
+    color: inherit !important;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+    .brand-link:hover {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+.brand-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .brand-text strong {
+        color: #ffffff;
+        font-size: 1.08rem;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .brand-text span {
+        color: #94a3b8;
+        font-size: 0.84rem;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+.sidebar-section-title {
+    padding: 0 10px 8px;
+    color: #64748b;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: 12px;
+    color: #d1d5db !important;
+    text-decoration: none !important;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+
+    .sidebar-link.active {
+        background: rgba(59, 130, 246, 0.14);
+        color: #ffffff !important;
+        box-shadow: inset 3px 0 0 #3b82f6;
+    }
+
+.sidebar-link-icon {
+    width: 18px;
+    flex: 0 0 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.sidebar-link-text {
+    line-height: 1;
+}
+
+.app-main {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    min-height: 100vh;
+    padding: 32px;
+}
+
+.app-header {
+    margin-bottom: 24px;
+}
+
+    .app-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .app-header p {
+        margin: 6px 0 0;
+        color: #64748b;
+    }
+
+.app-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        flex-direction: column;
+    }
+
+    .app-sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+        border-radius: 0 0 20px 20px;
+        box-shadow: none;
+    }
+
+    .sidebar-nav {
+        overflow-x: auto;
+    }
+
+    .app-main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
 }

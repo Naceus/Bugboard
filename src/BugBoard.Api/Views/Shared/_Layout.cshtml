@@ -1,62 +1,78 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BugBoard.Api</title>
+
+    <title>@pageTitle - BugBoard</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BugBoard.Api.styles.css" asp-append-version="true" />
-    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="navbar-brand" asp-controller="BugReports" asp-action="Index">Bug Reports</a>
-                        </li>
-                        @if (User.IsInRole(ApplicationRoles.Admin))
-                        {
-                            <li class="nav-item">
-                                <a class="navbar-brand" asp-controller="Admin" asp-action="Index">Admin Area</a>
-                            </li>
-                        }
-                    </ul>
-                    @if(User.Identity != null && User.Identity.IsAuthenticated)
-                    {
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-danger">
-                                Logout
-                            </button>
-                        </form>
-                    }
-                </div>
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="sidebar-brand">
+                <a asp-controller="Home" asp-action="Index" class="brand-link">
+                    <div class="brand-icon">BB</div>
+
+                    <div class="brand-text">
+                        <strong>BugBoard</strong>
+                        <span>Issue Management</span>
+                    </div>
+                </a>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+
+            <nav class="sidebar-nav" aria-label="Main navigation">
+                <div class="sidebar-section-title">Navigation</div>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "Home" ? "active" : "")">
+                    <span class="sidebar-link-icon">⌂</span>
+                    <span class="sidebar-link-text">Dashboard</span>
+                </a>
+
+                <a asp-controller="BugReports"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "BugReports" ? "active" : "")">
+                    <span class="sidebar-link-icon">!</span>
+                    <span class="sidebar-link-text">Bug Reports</span>
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="sidebar-link @(currentController == "Admin" ? "active" : "")">
+                    <span class="sidebar-link-icon">⚙</span>
+                    <span class="sidebar-link-text">Administration</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="app-main">
+            <header class="app-header">
+                <div>
+                    <h1>@pageTitle</h1>
+                    <p>Track, prioritize and manage software issues efficiently.</p>
+                </div>
+            </header>
+
+            <section class="app-content">
+                @RenderBody()
+            </section>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BugBoard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

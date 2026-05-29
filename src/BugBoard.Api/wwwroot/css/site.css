@@ -1,25 +1,66 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+html,
+body {
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    background: #f4f6f8;
+    color: #1f2937;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+/* Buttons */
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+/* Forms */
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border-color: #e5e7eb;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+    }
+
+/* Tables */
+
+.table {
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        color: #6b7280;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+/* Clickable table rows */
+
 .clickable-table .table-row-link {
     display: block;
     width: 100%;
@@ -40,8 +81,89 @@ body {
 }
 
 .clickable-table .table-row-link:focus-visible {
-    outline: 2px solid #0d6efd;
+    outline: 2px solid #3b82f6;
     outline-offset: -2px;
     border-radius: 0.25rem;
 }
 
+/* Sidebar links */
+
+.app-sidebar a {
+    text-decoration: none;
+}
+
+.brand-link {
+    color: inherit;
+}
+
+    .brand-link:hover,
+    .brand-link:focus {
+        color: inherit;
+    }
+
+.sidebar-link {
+    color: #d1d5db;
+    text-decoration: none;
+}
+
+    .sidebar-link:hover,
+    .sidebar-link:focus {
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .sidebar-link.active {
+        color: #ffffff;
+    }
+
+/* Optional utility cards */
+
+.filter-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+/* Status badges */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-open {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-progress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-done {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Priority styles */
+
+.priority-low {
+    color: #166534;
+    font-weight: 600;
+}
+
+.priority-medium {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.priority-high {
+    color: #991b1b;
+    font-weight: 600;
+}
