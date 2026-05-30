@@ -1,83 +1,116 @@
 ﻿@model BugReportIndexViewModel
 
-<div class="card">
-    <table class="table table-hover mb-0 clickable-table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Assigned To</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-            </tr>
-        </thead>
+@if (!Model.Reports.Any())
+{
+    <div class="empty-state">
+        <strong>No bug reports found.</strong>
+        <span>Try adjusting your search or filter criteria.</span>
+    </div>
+}
+else
+{
+    <div class="bug-report-list">
+        @foreach (var item in Model.Reports)
+        {
+            var detailsUrl = Url.Action("Details", "BugReports", new { id = item.Id });
+            var ariaLabel = $"Open bug report {item.Title}";
 
-        <tbody>
-            @if (Model.Reports.Any())
-            {
+            <a href="@detailsUrl" class="bug-report-card" aria-label="@ariaLabel">
+                <div class="bug-report-card-header">
+                    <h2>@item.Title</h2>
+                    <p>@item.Description</p>
+                </div>
+
+                <div class="bug-report-card-badges">
+                    <partial name="_StatusBadge" model="item.Status" />
+                    <partial name="_PriorityBadge" model="item.Priority" />
+                </div>
+
+                <dl class="bug-report-card-meta">
+                    <div>
+                        <dt>Assigned to</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedTo) ? "Unassigned" : item.AssignedTo)</dd>
+                    </div>
+
+                    <div>
+                        <dt>Created</dt>
+                        <dd>@item.CreateAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                    </div>
+
+                    <div>
+                        <dt>Updated</dt>
+                        <dd>@(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</dd>
+                    </div>
+                </dl>
+            </a>
+        }
+    </div>
+
+    <div class="bug-report-table-wrapper">
+        <table class="table table-hover mb-0 clickable-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Assigned To</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                </tr>
+            </thead>
+
+            <tbody>
                 @foreach (var item in Model.Reports)
                 {
                     var detailsUrl = Url.Action("Details", "BugReports", new { id = item.Id });
                     var ariaLabel = $"Open bug report {item.Title}";
+
                     <tr>
                         <td>
-                            <a href="@detailsUrl"
-                                class="table-row-link"
-                                aria-label="@ariaLabel">
-                                    @item.Title
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @item.Title
                             </a>
                         </td>
+
                         <td>
-                            <a href="@detailsUrl"
-                            class="table-row-link"
-                            aria-label="@ariaLabel">
-                                    @item.Description
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @item.Description
                             </a>
                         </td>
+
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
                                 <partial name="_StatusBadge" model="item.Status" />
                             </a>
                         </td>
+
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
                                 <partial name="_PriorityBadge" model="item.Priority" />
                             </a>
                         </td>
+
                         <td>
-                            <a href="@detailsUrl"
-                               class="table-row-link"
-                               aria-label="@ariaLabel">
-                                    @item.AssignedTo
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @(string.IsNullOrWhiteSpace(item.AssignedTo) ? "Unassigned" : item.AssignedTo)
                             </a>
                         </td>
+
                         <td>
-                            <a href="@detailsUrl"
-                               class="table-row-link"
-                               aria-label="@ariaLabel">
-                                 @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
                             </a>
                         </td>
+
                         <td>
-                            <a href="@detailsUrl"
-                               class="table-row-link"
-                               aria-label="@ariaLabel">
-                                    @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
                             </a>
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                        No bug reports found.
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+}

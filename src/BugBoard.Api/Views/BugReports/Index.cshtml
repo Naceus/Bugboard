@@ -1,55 +1,77 @@
-﻿
-@model BugReportIndexViewModel
+﻿@model BugReportIndexViewModel
 
-<h1 class="text-center ">Bug List</h1>
-<form id="bugReportFilterForm" asp-action="Index" method="get" class="mb-3">
-    <div class="row g-2 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">Search</label>
-            <input name="title" id="titleSearch" class="form-control" placeholder="Search title" value="@Model.Search"/>
-            
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Status</label>
-            <select name="status"  class="form-select">
-               <option value="">All statuses</option>
-                    @foreach (var status in Enum.GetValues<BugStatus>())
-                        {
-                            <option value="@status" selected="@(Model.SelectedStatus == status)">
-                                @status
-                            </option>
-                        }
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Priority</label>
-            <select name="priority" class="form-select">
-            <option value="">All priorities</option>
-                    @foreach(var priority in Enum.GetValues<BugPriority>())
-                        {
-                            <option value="@priority" selected="@(Model.SelectedPriority == priority)">
-                                @priority
-                            </option>
-                        }
-                    </select>
-        </div>
-        <div class="col-md-4 d-flex gap-2">
-            <a asp-action="Index" class="btn btn-secondary">Reset</a>
-        </div>
+@{
+    ViewData["Title"] = "Bug Reports";
+}
+@section Styles{
+    <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
+}
+
+<div class="bug-report-page">
+    <div class="bug-report-actions">
+        <a class="btn btn-success bug-report-create-button" asp-action="Create">
+            Create New
+        </a>
     </div>
-</form>
-<div id="bugReportTableContainer">
-    <partial name="_BugReportTable" model="Model" />
-    <partial name="_Pagination" model="Model" />
+
+    <form id="bugReportFilterForm"
+          asp-action="Index"
+          method="get"
+          class="filter-card bug-report-filters">
+
+        <div class="bug-report-filter-grid">
+            <div>
+                <label class="form-label" for="titleSearch">Search</label>
+                <input name="title"
+                       id="titleSearch"
+                       class="form-control"
+                       placeholder="Search title"
+                       value="@Model.Search" />
+            </div>
+
+            <div>
+                <label class="form-label" for="statusFilter">Status</label>
+                <select name="status" id="statusFilter" class="form-select">
+                    <option value="">All statuses</option>
+
+                    @foreach (var status in Enum.GetValues<BugStatus>())
+                    {
+                        <option value="@status" selected="@(Model.SelectedStatus == status)">
+                            @status
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="priorityFilter">Priority</label>
+                <select name="priority" id="priorityFilter" class="form-select">
+                    <option value="">All priorities</option>
+
+                    @foreach (var priority in Enum.GetValues<BugPriority>())
+                    {
+                        <option value="@priority" selected="@(Model.SelectedPriority == priority)">
+                            @priority
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="bug-report-filter-actions">
+                <a asp-action="Index" class="btn btn-secondary">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <div id="bugReportTableContainer">
+        <partial name="_BugReportTable" model="Model" />
+        <partial name="_Pagination" model="Model" />
+    </div>
 </div>
-<p>
-    <a class="btn btn-success" asp-action="Create">Create New</a>
-</p>
 
-
-
-
-
-@section Scripts{
+@section Scripts {
     <script src="~/js/bugboard-search.js" asp-append-version="true"></script>
 }
