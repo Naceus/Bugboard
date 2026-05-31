@@ -3,6 +3,9 @@ using BugBoard.Api.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BugBoard.Api.Controllers
 {
@@ -114,6 +117,28 @@ namespace BugBoard.Api.Controllers
                 return View(model);
             }
 
+            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var tokenBytes = Encoding.UTF8.GetBytes(token);
+                var encodedToken = WebEncoders.Base64UrlEncode(tokenBytes);
+                var resetLink = Url.Action(
+                    "ResetPassword",
+                    "Account",
+                    new
+                    {
+                        email = model.EmailAddress,
+                        token = encodedToken
+                    },
+                    Request.Scheme);
+
+                TempData["ResetPasswordLink"] = resetLink;
+            }
+
+
+
             return RedirectToAction("ForgotPasswordConfirmation");
         }
 
@@ -121,6 +146,21 @@ namespace BugBoard.Api.Controllers
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            ResetPasswordViewModel model = new();
+            model.EmailAddress = email;
+            model.Token = token;
+
+            return View(model);
         }
 
         private void AddErrors(IdentityResult result)
