@@ -163,6 +163,50 @@ namespace BugBoard.Api.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) {
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+
+            if (user == null) {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            string decodedToken;
+            try
+            {
+                var tokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+                decodedToken = Encoding.UTF8.GetString(tokenBytes);
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "The reset link is invalid or has expired.");
+                return View(model);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.Password);
+            if (result.Succeeded) {
+                return RedirectToAction("ResetPasswordConfirmation");    
+            }
+
+            foreach (var error in result.Errors) {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+
         private void AddErrors(IdentityResult result)
         {
             foreach(var error in result.Errors)
