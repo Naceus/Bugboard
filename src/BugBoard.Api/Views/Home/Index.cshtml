@@ -1,7 +1,7 @@
 ﻿@model LoginViewModel
 @{
     Layout = "_AuthLayout";
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Login";
 }
 @section Styles{
     <link rel="stylesheet" href="~/css/HomeIndex.css" asp-append-version="true" />
@@ -22,7 +22,7 @@
                 </h1>
 
                 <p class="text-center text-muted mb-4">
-                    Sign in to manage your bug reports.
+                    Sign in to access your BugBoard workspace.
                 </p>
 
                 <form asp-controller="Account" asp-action="Login" method="post">
@@ -86,8 +86,8 @@
                         Sign In
                     </button>
                     <p class="text-center">Don´t have an account yet?
-                        <a asp-controller="Account" asp-action="Register">Register for free
-
+                        <a asp-controller="Account" asp-action="Register" class="text-decoration-none">
+                            Create an account
                         </a>
                     </p>
                 </form>
@@ -97,40 +97,40 @@
         <section class=" col-12 col-lg-7 d-none d-lg-flex align-items-center justify-content-center login-hero-section p-5">
             <div class="login-hero w-100">
                 <h2 class="display-5 fw-bold mb-4">
-                    Track bugs. Manage fixes. Keep your workflow clean.
+                    Manage bugs with a clear and structured workflow.
                 </h2>
 
                 <p class="lead mb-5">
-                    BugBoard helps you organize bug reports, follow status changes,
-                    document activity logs and keep your development workflow transparent.
+                    BugBoard helps teams create, track and prioritize bug reports while keeping
+                    status changes and responsibilities transparent.
                 </p>
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="login-feature-card h-100">
-                            <h3>Status Tracking</h3>
-                            <p>Follow every ticket from open to resolved.</p>
+                            <h3>Bug Tracking</h3>
+                            <p>Create and manage bug reports in one structured overview.</p>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="login-feature-card h-100">
-                            <h3>Activity Logs</h3>
-                            <p>See what changed, when it changed and who worked on it.</p>
+                            <h3>Status Workflow</h3>
+                            <p>Follow each report from open to resolved with clear stauts updates.</p>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="login-feature-card h-100">
-                            <h3>Priority Overview</h3>
-                            <p>Keep critical bugs visible and easy to manage.</p>
+                            <h3>Priority Management</h3>
+                            <p>Keep critical issues visible and focus on what matters first.</p>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="login-feature-card h-100">
-                            <h3>Fast Search</h3>
-                            <p>Find bug reports quickly with filters and AJAX search.</p>
+                            <h3>Fast Filtering</h3>
+                            <p>Find relevant reports quickly with search, status and priority filteres.</p>
                         </div>
                     </div>
                 </div>
