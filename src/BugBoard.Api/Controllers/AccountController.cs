@@ -100,8 +100,26 @@ namespace BugBoard.Api.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword() { 
+        public IActionResult ForgotPassword() { 
         
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) { 
+                return View(model);
+            }
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
             return View();
         }
 
