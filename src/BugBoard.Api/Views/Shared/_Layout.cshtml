@@ -48,13 +48,30 @@
                     <span class="sidebar-link-text">Bug Reports</span>
                 </a>
 
-                <a asp-controller="Admin"
-                   asp-action="Index"
-                   class="sidebar-link @(currentController == "Admin" ? "active" : "")">
-                    <span class="sidebar-link-icon">⚙</span>
-                    <span class="sidebar-link-text">Administration</span>
-                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Admin"
+                       asp-action="Index"
+                       class="sidebar-link @(currentController == "Admin" ? "active" : "")">
+                        <span class="sidebar-link-icon">⚙</span>
+                        <span class="sidebar-link-text">Administration</span>
+                    </a>
+                }
             </nav>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-footer">
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="sidebar-logout-button">
+                            <span class="sidebar-link-icon">↪</span>
+                            <span class="sidebar-link-text">Logout</span>
+                        </button>
+                    </form>
+                </div>
+            }
         </aside>
 
         <main class="app-main">
