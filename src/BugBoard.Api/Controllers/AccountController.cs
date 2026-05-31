@@ -98,6 +98,12 @@ namespace BugBoard.Api.Controllers
             return View(model);
 
         }
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword() { 
+        
+            return View();
+        }
 
         private void AddErrors(IdentityResult result)
         {
