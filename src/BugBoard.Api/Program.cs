@@ -24,7 +24,13 @@ internal class Program
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login
         builder.Services
-            .AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<BugBoardDbContext>();
+            .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<BugBoardDbContext>()
+            .AddDefaultTokenProviders();
+
+        builder.Services
+            .Configure<DataProtectionTokenProviderOptions>
+            (options => options.TokenLifespan = TimeSpan.FromMinutes(15));
         var app = builder.Build();
 
         using(var scope = app.Services.CreateScope())

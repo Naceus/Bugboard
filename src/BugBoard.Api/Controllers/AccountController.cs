@@ -3,6 +3,9 @@ using BugBoard.Api.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BugBoard.Api.Controllers
 {
@@ -97,6 +100,111 @@ namespace BugBoard.Api.Controllers
             }
             return View(model);
 
+        }
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword() { 
+        
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) { 
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var tokenBytes = Encoding.UTF8.GetBytes(token);
+                var encodedToken = WebEncoders.Base64UrlEncode(tokenBytes);
+                var resetLink = Url.Action(
+                    "ResetPassword",
+                    "Account",
+                    new
+                    {
+                        email = model.EmailAddress,
+                        token = encodedToken
+                    },
+                    Request.Scheme);
+
+                TempData["ResetPasswordLink"] = resetLink;
+            }
+
+
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            ResetPasswordViewModel model = new();
+            model.EmailAddress = email;
+            model.Token = token;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) {
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.EmailAddress);
+
+            if (user == null) {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            string decodedToken;
+            try
+            {
+                var tokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+                decodedToken = Encoding.UTF8.GetString(tokenBytes);
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "The reset link is invalid or has expired.");
+                return View(model);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.Password);
+            if (result.Succeeded) {
+                return RedirectToAction("ResetPasswordConfirmation");    
+            }
+
+            foreach (var error in result.Errors) {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
         }
 
         private void AddErrors(IdentityResult result)
