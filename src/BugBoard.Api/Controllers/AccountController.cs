@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BugBoard.Api.Controllers
 {
