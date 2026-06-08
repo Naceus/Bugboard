@@ -168,7 +168,7 @@ namespace BugBoard.Api.Controllers
 		/// Preserves the submitted form values while restoring required dropdown data.
 		/// </summary>
 		/// <param name="user">The user being edited</param>
-		/// <param name="postedModel">The Submitted form values.</param>
+		/// <param name="postedModel">The submitted form values.</param>
 		/// <returns>A rebuilt edit user view model with preserved posted values.</returns>
 		private async Task<EditUserViewModel> BuildEditUserErrorViewModelAsync(ApplicationUser user, EditUserViewModel postedModel)
 		{
