@@ -12,18 +12,20 @@ namespace BugBoard.Api.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _environment = environment;
         }
         [HttpGet]
         public IActionResult Login()
         {
             if(User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "BugReports");
+                return RedirectToAction("Index", "Dashboard");
             }
             return RedirectToAction("Index", "Home");
         }
@@ -44,7 +46,7 @@ namespace BugBoard.Api.Controllers
                 lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "BugReports");
+                return RedirectToAction("Index", "Dashboard");
             }
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View("~/Views/Home/Index.cshtml",model);
@@ -133,7 +135,12 @@ namespace BugBoard.Api.Controllers
                     },
                     Request.Scheme);
 
-                TempData["ResetPasswordLink"] = resetLink;
+                // Temporary development convenience until real email sending is implemented:
+                // never expose the reset link outside of a development environment.
+                if (_environment.IsDevelopment())
+                {
+                    TempData["ResetPasswordLink"] = resetLink;
+                }
             }
 
 

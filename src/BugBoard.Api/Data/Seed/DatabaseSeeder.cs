@@ -69,7 +69,7 @@ namespace BugBoard.Api.Data.Seed
 
         /// <summary>
         /// Throws an exception if an Identity operation failed.
-        /// Includes all Indetity error descriptions in the exception message.
+        /// Includes all Identity error descriptions in the exception message.
         /// </summary>
         private static void ThrowIfFailed(IdentityResult result, string message)
         {

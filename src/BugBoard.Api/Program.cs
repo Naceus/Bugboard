@@ -2,6 +2,7 @@ using BugBoard.Api.Data;
 using BugBoard.Api.Data.Seed;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
+using BugBoard.Api.Services.Dashboard;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,8 @@ internal class Program
             .UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services
             .AddScoped<BugReportChangeService>();
-
+        builder.Services
+            .AddScoped<IDashboardService, DashboardService>();
         builder.Services
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login

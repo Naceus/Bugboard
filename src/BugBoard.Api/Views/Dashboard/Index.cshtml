@@ -1,0 +1,116 @@
+﻿@using BugBoard.Api.ViewModels.Dashboard
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-page">
+    <section class="dashboard-metrics" aria-label="Dashboard metrics">
+        @foreach (var metric in Model.Metrics)
+        {
+            <article class="dashboard-metric-card dashboard-metric-card--@metric.Variant">
+                <div class="dashboard-metric-icon">
+                    @metric.Icon
+                </div>
+
+                <div class="dashboard-metric-content">
+                    <span class="dashboard-metric-title">
+                        @metric.Title
+                    </span>
+
+                    <strong class="dashboard-metric-value">
+                        @metric.Value
+                    </strong>
+
+                    <p class="dashboard-metric-description">
+                        @metric.Description
+                    </p>
+                </div>
+            </article>
+        }
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div>
+                    <h2>Recent Reports</h2>
+                    <p>Your latest bug reports and updates.</p>
+                </div>
+
+                <a asp-controller="BugReports"
+                   asp-action="Index"
+                   class="dashboard-card-link">
+                    View all
+                </a>
+            </div>
+
+            @if (!Model.RecentReports.Any())
+            {
+                <div class="dashboard-empty-state">
+                    <strong>No reports yet.</strong>
+                    <span>Create your first bug report to start tracking issues.</span>
+                </div>
+            }
+            else
+            {
+                <div class="dashboard-report-list">
+                    @foreach (var report in Model.RecentReports)
+                    {
+                        <a asp-controller="BugReports"
+                           asp-action="Details"
+                           asp-route-id="@report.Id"
+                           class="dashboard-report-item">
+
+                            <div class="dashboard-report-main">
+                                <h3>@report.Title</h3>
+
+                                <div class="dashboard-report-badges">
+                                    <span class="dashboard-badge">
+                                        @report.Status
+                                    </span>
+
+                                    <span class="dashboard-badge dashboard-badge--priority">
+                                        @report.Priority
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-report-meta">
+                                Last activity: @report.LastActivityAt.ToString("dd.MM.yyyy HH:mm")
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </article>
+
+        <aside class="dashboard-card dashboard-actions-card">
+            <div class="dashboard-card-header">
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p>Common actions for your workflow.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <a asp-controller="BugReports"
+                   asp-action="Create"
+                   class="btn btn-primary btn-lg w-100">
+                    Create Report
+                </a>
+
+                <a asp-controller="BugReports"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary btn-lg w-100">
+                    View My Reports
+                </a>
+            </div>
+        </aside>
+    </section>
+</div>
