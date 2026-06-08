@@ -23,7 +23,7 @@ namespace BugBoard.Api.Controllers
         {
             if(User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "BugReports");
+                return RedirectToAction("Index", "Dashboard");
             }
             return RedirectToAction("Index", "Home");
         }
@@ -44,7 +44,7 @@ namespace BugBoard.Api.Controllers
                 lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "BugReports");
+                return RedirectToAction("Index", "Dashboard");
             }
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View("~/Views/Home/Index.cshtml",model);

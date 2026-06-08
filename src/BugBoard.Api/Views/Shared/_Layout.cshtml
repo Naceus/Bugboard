@@ -21,7 +21,7 @@
     <div class="app-shell">
         <aside class="app-sidebar">
             <div class="sidebar-brand">
-                <a asp-controller="Home" asp-action="Index" class="brand-link">
+                <a asp-controller="Dashboard" asp-action="Index" class="brand-link">
                     <div class="brand-icon">BB</div>
 
                     <div class="brand-text">
@@ -34,9 +34,9 @@
             <nav class="sidebar-nav" aria-label="Main navigation">
                 <div class="sidebar-section-title">Navigation</div>
 
-                <a asp-controller="Home"
+                <a asp-controller="Dashboard"
                    asp-action="Index"
-                   class="sidebar-link @(currentController == "Home" ? "active" : "")">
+                   class="sidebar-link @(currentController == "Dashboard" ? "active" : "")">
                     <span class="sidebar-link-icon">⌂</span>
                     <span class="sidebar-link-text">Dashboard</span>
                 </a>
