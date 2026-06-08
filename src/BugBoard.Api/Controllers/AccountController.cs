@@ -12,11 +12,13 @@ namespace BugBoard.Api.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _environment = environment;
         }
         [HttpGet]
         public IActionResult Login()
@@ -133,7 +135,12 @@ namespace BugBoard.Api.Controllers
                     },
                     Request.Scheme);
 
-                TempData["ResetPasswordLink"] = resetLink;
+                // Temporary development convenience until real email sending is implemented:
+                // never expose the reset link outside of a development environment.
+                if (_environment.IsDevelopment())
+                {
+                    TempData["ResetPasswordLink"] = resetLink;
+                }
             }
 
 

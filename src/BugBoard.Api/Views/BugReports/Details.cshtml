@@ -44,7 +44,7 @@
             @Html.DisplayNameFor(model => model.CreatedByUser)
         </dt>
         <dd class=" col-sm-10">
-            @Html.DisplayFor(model => model.CreatedByUser.FirstName)
+            @(Model.CreatedByUser != null ? $"{Model.CreatedByUser.FirstName} {Model.CreatedByUser.LastName}" : "Unknown")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Status)
@@ -63,7 +63,7 @@
             @Html.DisplayNameFor(model => model.AssignedTo)
         </dt>
         <dd class = "col-sm-10">
-        @(Model.CreatedByUser != null ? $"{Model.CreatedByUser.FirstName} {Model.CreatedByUser.LastName}" : "Unknown")
+        @(string.IsNullOrWhiteSpace(Model.AssignedTo) ? "Unassigned" : Model.AssignedTo)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.CreateAt)

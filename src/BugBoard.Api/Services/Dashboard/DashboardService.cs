@@ -1,5 +1,4 @@
-﻿using BugBoard.Api.Controllers;
-using BugBoard.Api.Data;
+﻿using BugBoard.Api.Data;
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.ViewModels.Dashboard;
 using Microsoft.EntityFrameworkCore;
