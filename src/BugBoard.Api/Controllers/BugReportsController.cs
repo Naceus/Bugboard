@@ -15,11 +15,17 @@ namespace BugBoard.Api.Controllers
     {
         private readonly BugBoardDbContext _context;
         private readonly BugReportChangeService _bugReportChangeService;
+        private readonly IBugReportCommentService _bugReportCommentService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public BugReportsController(BugBoardDbContext context, BugReportChangeService bugReportChangeService, UserManager<ApplicationUser> userManager)
+        public BugReportsController(
+            BugBoardDbContext context,
+            BugReportChangeService bugReportChangeService,
+            IBugReportCommentService bugReportCommentService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _bugReportChangeService = bugReportChangeService;
+            _bugReportCommentService = bugReportCommentService;
             _userManager = userManager;
         }
 
@@ -54,8 +60,64 @@ namespace BugBoard.Api.Controllers
             {
                 return Forbid();
             }
+            var canUseInternalComments = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+
+            var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
+            var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
+            var viewModel = new BugReportDetailsViewModel
+            {
+                BugReport = bugReport,
+                Logs = bugReport.Logs,
+                Comments = comments,
+                ActivityItems = activityItems,
+                NewComment = new CreateBugReportCommentViewModel
+                {
+                    BugReportId = bugReport.Id
+                },
+                CanCreateInternalComment = canUseInternalComments
+            };
             
-            return View(bugReport);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateComment(CreateBugReportCommentViewModel commentViewModel)
+        {
+            var bugReport = await _context.BugReports
+                .FirstOrDefaultAsync(b => b.Id == commentViewModel.BugReportId);
+
+            if (bugReport == null)
+            {
+                return NotFound();
+            }
+
+            if (!CanViewBugReport(bugReport))
+            {
+                return Forbid();
+            }
+
+            var canUseInternalComments = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+
+            commentViewModel.Comment = commentViewModel.Comment.Trim();
+            if (string.IsNullOrWhiteSpace(commentViewModel.Comment))
+            {
+                ModelState.AddModelError(nameof(commentViewModel.Comment), "Comment is required.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Details), new { id = commentViewModel.BugReportId });
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            await _bugReportCommentService.CreateCommentAsync(
+                commentViewModel,
+                currentUser,
+                User.Identity?.Name,
+                canUseInternalComments);
+
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id });
         }
 
         // GET: BugReports/Create

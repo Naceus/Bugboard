@@ -126,6 +126,110 @@
         color: #0f172a;
     }
 
+/* Details activity */
+
+.bug-report-activity {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.bug-report-activity-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+    .bug-report-activity-header h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+.bug-report-activity-scroll {
+    display: grid;
+    gap: 0.75rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-comment-form {
+    display: grid;
+    gap: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-comment-input textarea {
+    resize: vertical;
+}
+
+.bug-report-comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.bug-report-comment-visibility {
+    width: auto;
+    min-width: 9rem;
+}
+
+.bug-report-activity-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.875rem;
+    background: #ffffff;
+}
+
+.bug-report-comment-item {
+    border-left: 4px solid #2563eb;
+}
+
+.bug-report-log-item {
+    background: #f8fafc;
+    border-left: 4px solid #94a3b8;
+}
+
+.bug-report-activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bug-report-activity-type {
+    color: #475569;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bug-report-comment-text {
+    margin: 0.65rem 0 0;
+    color: #0f172a;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.bug-report-activity-empty {
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+
 /* Tablet layout */
 
 @media (min-width: 768px) {

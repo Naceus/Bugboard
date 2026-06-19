@@ -1,8 +1,12 @@
 ﻿
-@model BugReport
+@model BugReportDetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
 }
 
 <h1>Details</h1>
@@ -13,12 +17,12 @@
             <a class="btn btn-dark" asp-action="Index">Back</a>
             @if (User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer))
             {
-                <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+                <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.BugReport.Id">Edit</a>
                 
             }
             @if (User.IsInRole(ApplicationRoles.Admin))
             {
-                <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+                <form asp-action="Delete" asp-route-id="@Model.BugReport.Id" method="post"
                     onsubmit="return confirm('Are you sure want to delete this bug report?');" class="ms-auto">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">Delete</button>
@@ -29,77 +33,131 @@
     <dl class="row">
 
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.DisplayNameFor(model => model.BugReport.Title)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.BugReport.Title)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.BugReport.Description)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.BugReport.Description)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedByUser)
+            @Html.DisplayNameFor(model => model.BugReport.CreatedByUser)
         </dt>
         <dd class=" col-sm-10">
-            @(Model.CreatedByUser != null ? $"{Model.CreatedByUser.FirstName} {Model.CreatedByUser.LastName}" : "Unknown")
+            @(Model.BugReport.CreatedByUser != null ? $"{Model.BugReport.CreatedByUser.FirstName} {Model.BugReport.CreatedByUser.LastName}" : "Unknown")
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
+            @Html.DisplayNameFor(model => model.BugReport.Status)
         </dt>
         <dd class = "col-sm-10">
-        <partial name="_StatusBadge" model="Model.Status"/>
+        <partial name="_StatusBadge" model="Model.BugReport.Status"/>
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Priority)
+            @Html.DisplayNameFor(model => model.BugReport.Priority)
         </dt>
         <dd class = "col-sm-10">
-         <partial name="_PriorityBadge" model="Model.Priority"/>
+         <partial name="_PriorityBadge" model="Model.BugReport.Priority"/>
             
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AssignedTo)
+            @Html.DisplayNameFor(model => model.BugReport.AssignedTo)
         </dt>
         <dd class = "col-sm-10">
-        @(string.IsNullOrWhiteSpace(Model.AssignedTo) ? "Unassigned" : Model.AssignedTo)
+        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedTo) ? "Unassigned" : Model.BugReport.AssignedTo)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreateAt)
+            @Html.DisplayNameFor(model => model.BugReport.CreateAt)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreateAt)
+            @Html.DisplayFor(model => model.BugReport.CreateAt)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
+            @Html.DisplayNameFor(model => model.BugReport.UpdatedAt)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
+            @Html.DisplayFor(model => model.BugReport.UpdatedAt)
         </dd>
     </dl>
 </div>
 <hr />
-@if (!Model.Logs.Any())
-{
-    <div class="card-body border text-muted">
-        No activity yet.
+<section class="bug-report-activity">
+    <div class="bug-report-activity-header">
+        <h2>Activity</h2>
     </div>
-}
-<div class="card">
-        @foreach(var log in Model.Logs)
-        {
-            <div class="card-body">
-                <div class="d-flex gap-2 align-items-center w-100">
-                    <span>@log.Message</span>
 
-                    <small class="text-muted ms-auto">
-                        @log.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                    </small>
-                </div>
+    <form class="bug-report-comment-form" asp-action="CreateComment" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="BugReportId" value="@Model.NewComment.BugReportId" />
+
+        <div class="bug-report-comment-input">
+            <label class="form-label" for="Comment">Comment</label>
+            <textarea class="form-control"
+                      id="Comment"
+                      name="Comment"
+                      rows="3"
+                      maxlength="2000"
+                      placeholder="Write a comment..."></textarea>
+        </div>
+
+        <div class="bug-report-comment-actions">
+            @if (Model.CanCreateInternalComment)
+            {
+                <select class="form-select bug-report-comment-visibility" name="CommentVisibility" aria-label="Comment visibility">
+                    <option value="@CommentVisibility.Public">Public</option>
+                    <option value="@CommentVisibility.Internal">Internal</option>
+                </select>
+            }
+            else
+            {
+                <input type="hidden" name="CommentVisibility" value="@CommentVisibility.Public" />
+            }
+
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+
+    <div class="bug-report-activity-scroll">
+        @if (!Model.ActivityItems.Any())
+        {
+            <div class="bug-report-activity-empty">
+                No activity yet.
             </div>
         }
-    </div>    
+        else
+        {
+            @foreach (var item in Model.ActivityItems)
+            {
+                <article class="bug-report-activity-item @(item.IsComment ? "bug-report-comment-item" : "bug-report-log-item")">
+                    <div class="bug-report-activity-meta">
+                        @if (item.IsComment)
+                        {
+                            <strong>@item.AuthorName</strong>
+
+                            @if (item.CommentVisibility == CommentVisibility.Internal)
+                            {
+                                <span class="badge bg-warning text-dark">Internal</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="bug-report-activity-type">Log</span>
+                        }
+
+                        <small class="text-muted ms-auto">
+                            @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </small>
+                    </div>
+
+                    <p class="bug-report-comment-text">@item.Message</p>
+                </article>
+            }
+        }
+    </div>
+</section>
 
 
 

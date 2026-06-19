@@ -21,6 +21,8 @@ internal class Program
         builder.Services
             .AddScoped<BugReportChangeService>();
         builder.Services
+            .AddScoped<IBugReportCommentService, BugReportCommentService>();
+        builder.Services
             .AddScoped<IDashboardService, DashboardService>();
         builder.Services
             .AddScoped<DatabaseSeeder>();
