@@ -22,5 +22,6 @@ public class BugReport
 
     public List<BugReportLog> Logs { get; set; } = new();
     public List<BugReportComment> Comments { get; set; } = new();
+    public List<BugReportAttachment> Attachments { get; set; } = new();
 }
 
