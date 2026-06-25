@@ -441,6 +441,9 @@ appsettings.Local.json
 .env
 .env.*
 
+# Local uploaded files
+src/BugBoard.Api/App_Data/uploads/
+
 # Frontend build output
 dist/
 wwwroot/dist/

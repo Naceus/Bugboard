@@ -1,0 +1,25 @@
+# Default: normalize text files in Git.
+* text=auto
+
+# .NET and web source files use Windows line endings in the working tree.
+*.cs text eol=crlf
+*.cshtml text eol=crlf
+*.csproj text eol=crlf
+*.slnx text eol=crlf
+*.json text eol=crlf
+*.css text eol=crlf
+*.js text eol=crlf
+
+# Documentation and Git metadata stay LF.
+*.md text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files must not be normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.ico binary
