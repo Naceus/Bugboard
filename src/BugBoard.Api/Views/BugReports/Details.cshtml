@@ -84,6 +84,39 @@
     </dl>
 </div>
 <hr />
+<section class="bug-report-attachments">
+    <div class="bug-report-attachments-header">
+        <h2>Attachments</h2>
+        <span class="bug-report-attachments-count">@Model.Attachments.Count</span>
+    </div>
+
+    @if (!Model.Attachments.Any())
+    {
+        <div class="bug-report-attachments-empty">
+            No attachments uploaded.
+        </div>
+    }
+    else
+    {
+        <div class="bug-report-attachments-list">
+            @foreach (var attachment in Model.Attachments)
+            {
+                <article class="bug-report-attachment-item">
+                    <div class="bug-report-attachment-main">
+                        <strong>@attachment.OriginalFileName</strong>
+                        <span>@attachment.ContentType</span>
+                    </div>
+                    <div class="bug-report-attachment-meta">
+                        <span>@FormatFileSize(attachment.FileSize)</span>
+                        <span>@attachment.UploadedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<hr />
 <section class="bug-report-activity">
     <div class="bug-report-activity-header">
         <h2>Activity</h2>
@@ -98,7 +131,7 @@
             <textarea class="form-control"
                       id="Comment"
                       name="Comment"
-                      rows="3"
+                      rows="4"
                       maxlength="2000"
                       placeholder="Write a comment..."></textarea>
         </div>
@@ -159,6 +192,25 @@
     </div>
 </section>
 
+@functions {
+    private static string FormatFileSize(long fileSize)
+    {
+        const long oneKilobyte = 1024;
+        const long oneMegabyte = oneKilobyte * 1024;
+
+        if (fileSize >= oneMegabyte)
+        {
+            return $"{fileSize / (double)oneMegabyte:0.##} MB";
+        }
+
+        if (fileSize >= oneKilobyte)
+        {
+            return $"{fileSize / (double)oneKilobyte:0.##} KB";
+        }
+
+        return $"{fileSize} bytes";
+    }
+}
 
 
 

@@ -4,10 +4,14 @@
     ViewData["Title"] = "Edit";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
+}
+
 <h1>Edit</h1>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-12 col-lg-8 col-xl-7">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
@@ -19,7 +23,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <textarea asp-for="Description" class="form-control bug-report-description-input" rows="5"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">

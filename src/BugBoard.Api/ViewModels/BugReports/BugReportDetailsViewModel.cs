@@ -10,5 +10,6 @@ namespace BugBoard.Api.ViewModels.BugReports
         public List<BugReportActivityItemViewModel> ActivityItems { get; set; } = new();
         public CreateBugReportCommentViewModel NewComment { get; set; } = new();
         public bool CanCreateInternalComment { get; set; }
+        public List<BugReportAttachmentViewModel> Attachments { get; set; } = new();
     }
 }

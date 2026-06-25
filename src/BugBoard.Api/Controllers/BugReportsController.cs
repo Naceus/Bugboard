@@ -54,6 +54,7 @@ namespace BugBoard.Api.Controllers
                 .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
                 .Include(b => b.CreatedByUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (bugReport == null)
             {
                 return NotFound();
@@ -67,6 +68,8 @@ namespace BugBoard.Api.Controllers
 
             var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
             var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
+            var attachments = await BuildAttachmentViewModelsAsync(bugReport.Id);
+
             var viewModel = new BugReportDetailsViewModel
             {
                 BugReport = bugReport,
@@ -77,7 +80,8 @@ namespace BugBoard.Api.Controllers
                 {
                     BugReportId = bugReport.Id
                 },
-                CanCreateInternalComment = canUseInternalComments
+                CanCreateInternalComment = canUseInternalComments,
+                Attachments = attachments
             };
             
             return View(viewModel);
@@ -312,7 +316,7 @@ namespace BugBoard.Api.Controllers
 
             IQueryable<BugReport> bugReports = _context.BugReports;
 
-            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canViewAllReports = IsStaffUser();
             if (!canViewAllReports)
             {
                 var currentUserId = _userManager.GetUserId(User);
@@ -368,6 +372,24 @@ namespace BugBoard.Api.Controllers
         private bool IsStaffUser()
         {
             return User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+        }
+
+        private async Task<List<BugReportAttachmentViewModel>> BuildAttachmentViewModelsAsync(int bugReportId)
+        {
+          return await _context.BugReportAttachments
+                        .Where(a => a.BugReportId == bugReportId)
+                        .OrderByDescending(a => a.UploadedAt)
+                        .Select(a => new BugReportAttachmentViewModel
+                        {
+                            Id = a.Id,
+                            OriginalFileName = a.OriginalFileName,
+                            ContentType = a.ContentType,
+                            FileSize = a.FileSize,
+                            UploadedAt = a.UploadedAt,
+                        }
+                        )
+                        .ToListAsync();
+            
         }
     }
 }

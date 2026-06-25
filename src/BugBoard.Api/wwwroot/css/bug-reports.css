@@ -28,6 +28,11 @@
     display: flex;
 }
 
+.bug-report-description-input,
+.bug-report-comment-input textarea {
+    resize: vertical;
+}
+
 /* Mobile card list */
 
 .bug-report-list {
@@ -128,6 +133,86 @@
 
 /* Details activity */
 
+.bug-report-attachments {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.bug-report-attachments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+    .bug-report-attachments-header h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+.bug-report-attachments-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #075985;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.bug-report-attachments-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.bug-report-attachment-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-attachment-main {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+    .bug-report-attachment-main strong {
+        color: #0f172a;
+        overflow-wrap: anywhere;
+    }
+
+    .bug-report-attachment-main span {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+.bug-report-attachment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: #475569;
+    font-size: 0.875rem;
+}
+
+.bug-report-attachments-empty {
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+
 .bug-report-activity {
     display: grid;
     gap: 0.75rem;
@@ -167,10 +252,6 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1rem;
-}
-
-.bug-report-comment-input textarea {
-    resize: vertical;
 }
 
 .bug-report-comment-actions {
@@ -235,6 +316,17 @@
 @media (min-width: 768px) {
     .bug-report-create-button {
         width: auto;
+    }
+
+    .bug-report-attachment-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .bug-report-attachment-meta {
+        justify-content: flex-end;
+        text-align: right;
     }
 
     .bug-report-filter-grid {
