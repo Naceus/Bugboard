@@ -73,13 +73,13 @@
             @Html.DisplayNameFor(model => model.BugReport.CreateAt)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BugReport.CreateAt)
+            @Model.BugReport.CreateAt.ToDisplayDateTime()
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.BugReport.UpdatedAt)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BugReport.UpdatedAt)
+            @Model.BugReport.UpdatedAt.ToDisplayDateTime()
         </dd>
     </dl>
 </div>
@@ -103,12 +103,18 @@
             {
                 <article class="bug-report-attachment-item">
                     <div class="bug-report-attachment-main">
-                        <strong>@attachment.OriginalFileName</strong>
+                        <a asp-action="ViewAttachment"
+                           asp-route-id="@attachment.Id"
+                           target="_blank"
+                           rel="noopener"
+                           class="bug-report-attachment-link">
+                            @attachment.OriginalFileName
+                        </a>
                         <span>@attachment.ContentType</span>
                     </div>
                     <div class="bug-report-attachment-meta">
                         <span>@FormatFileSize(attachment.FileSize)</span>
-                        <span>@attachment.UploadedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                        <span>@attachment.UploadedAt.ToDisplayDateTime()</span>
                     </div>
                 </article>
             }
@@ -181,7 +187,7 @@
                         }
 
                         <small class="text-muted ms-auto">
-                            @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            @item.CreatedAt.ToDisplayDateTime()
                         </small>
                     </div>
 

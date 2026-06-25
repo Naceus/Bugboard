@@ -24,8 +24,4 @@
     <PackageReference Include="NuGet.Protocol" Version="7.6.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="App_Data\uploads\bug-reports\21\" />
-  </ItemGroup>
-
 </Project>

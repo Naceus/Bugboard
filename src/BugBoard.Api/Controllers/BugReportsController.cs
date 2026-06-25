@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mime;
 
 namespace BugBoard.Api.Controllers
 {
@@ -18,17 +19,20 @@ namespace BugBoard.Api.Controllers
         private readonly IBugReportCommentService _bugReportCommentService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBugReportAttachmentService _bugReportAttachmentService;
+        private readonly IWebHostEnvironment _environment;
         public BugReportsController(
             BugBoardDbContext context,
             BugReportChangeService bugReportChangeService,
             IBugReportCommentService bugReportCommentService,
             IBugReportAttachmentService bugReportAttachmentService,
+            IWebHostEnvironment environment,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _bugReportChangeService = bugReportChangeService;
             _bugReportCommentService = bugReportCommentService;
             _bugReportAttachmentService = bugReportAttachmentService;
+            _environment = environment;
             _userManager = userManager;
         }
 
@@ -260,12 +264,18 @@ namespace BugBoard.Api.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var bugReport = await _context.BugReports.FindAsync(id);
-            if (bugReport != null)
+            if (bugReport == null)
             {
-                _context.BugReports.Remove(bugReport);
+                return NotFound();
             }
 
+            var attachmentFilePaths = await _bugReportAttachmentService.GetAttachmentFilePathsForBugReportAsync(id);
+
+            _context.BugReports.Remove(bugReport);
             await _context.SaveChangesAsync();
+
+            _bugReportAttachmentService.DeleteAttachmentFiles(attachmentFilePaths);
+
             return RedirectToAction(nameof(Index));
 
         }
@@ -391,5 +401,48 @@ namespace BugBoard.Api.Controllers
                         .ToListAsync();
             
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewAttachment(int id)
+        {
+            var attachment = await _context.BugReportAttachments
+                                .Include(a => a.BugReport)
+                                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            if (!CanViewBugReport(attachment.BugReport))
+            {
+                return Forbid();
+            }
+
+            var filePath = Path.Combine(
+                _environment.ContentRootPath,
+                "App_Data",
+                "uploads",
+                "bug-reports",
+                attachment.BugReportId.ToString(),
+                attachment.StoredFileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var contentDisposition = new ContentDisposition
+            {
+                Inline = true,
+                FileName = attachment.OriginalFileName
+            };
+
+            Response.Headers.ContentDisposition = contentDisposition.ToString();
+
+            return PhysicalFile(filePath, attachment.ContentType, enableRangeProcessing: true);
+
+        }
+
     }
 }

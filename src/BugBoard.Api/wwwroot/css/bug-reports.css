@@ -187,14 +187,22 @@
     min-width: 0;
 }
 
-    .bug-report-attachment-main strong {
-        color: #0f172a;
-        overflow-wrap: anywhere;
-    }
-
     .bug-report-attachment-main span {
         color: #64748b;
         font-size: 0.875rem;
+    }
+
+.bug-report-attachment-link {
+    color: #0f172a;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+    .bug-report-attachment-link:hover,
+    .bug-report-attachment-link:focus {
+        color: #2563eb;
+        text-decoration: underline;
     }
 
 .bug-report-attachment-meta {

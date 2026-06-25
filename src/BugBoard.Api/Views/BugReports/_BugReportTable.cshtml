@@ -34,12 +34,12 @@ else
 
                     <div>
                         <dt>Created</dt>
-                        <dd>@item.CreateAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                        <dd>@item.CreateAt.ToDisplayDateTime()</dd>
                     </div>
 
                     <div>
                         <dt>Updated</dt>
-                        <dd>@(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</dd>
+                        <dd>@item.UpdatedAt.ToDisplayDateTime()</dd>
                     </div>
                 </dl>
             </a>
@@ -99,13 +99,13 @@ else
 
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
-                                @item.CreateAt.ToString("dd.MM.yyyy HH:mm")
+                                @item.CreateAt.ToDisplayDateTime()
                             </a>
                         </td>
 
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
-                                @(item.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                                @item.UpdatedAt.ToDisplayDateTime()
                             </a>
                         </td>
                     </tr>

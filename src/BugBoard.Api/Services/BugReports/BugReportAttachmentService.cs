@@ -51,12 +51,17 @@ namespace BugBoard.Api.Services.BugReports
 
         private readonly BugBoardDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<BugReportAttachmentService> _logger;
 
 
-        public BugReportAttachmentService(BugBoardDbContext context, IWebHostEnvironment environment)
+        public BugReportAttachmentService(
+            BugBoardDbContext context,
+            IWebHostEnvironment environment,
+            ILogger<BugReportAttachmentService> logger)
         {
             _context = context;
             _environment = environment;
+            _logger = logger;
         }
 
 
@@ -111,11 +116,66 @@ namespace BugBoard.Api.Services.BugReports
 
             catch
             {
-                DeleteSaveFiles(savedFilePaths);
+                DeleteAttachmentFiles(savedFilePaths);
                 throw;
             }
 
 
+        }
+
+        public async Task<IReadOnlyList<string>> GetAttachmentFilePathsForBugReportAsync(int bugReportId)
+        {
+            var storageDirectory = GetStorageDirectory(bugReportId);
+
+            return await _context.BugReportAttachments
+                .Where(a => a.BugReportId == bugReportId)
+                .Select(a => Path.Combine(storageDirectory, a.StoredFileName))
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Deletes physical attachment files from disk after their database records were removed.
+        /// </summary>
+        /// <param name="filePaths">The absolute paths of files that should be removed.</param>
+        public void DeleteAttachmentFiles(IEnumerable<string> filePaths)
+        {
+            var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var filePath in filePaths)
+            {
+                try
+                {
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+
+                    var directory = Path.GetDirectoryName(filePath);
+                    if (!string.IsNullOrWhiteSpace(directory))
+                    {
+                        directories.Add(directory);
+                    }
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    _logger.LogWarning(ex, "Failed to delete attachment file '{FilePath}'.", filePath);
+                }
+            }
+
+            foreach (var directory in directories)
+            {
+                try
+                {
+                    if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+                    {
+                        Directory.Delete(directory);
+                    }
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    _logger.LogWarning(ex, "Failed to delete empty attachment directory '{Directory}'.", directory);
+                }
+            }
         }
 
 
@@ -268,19 +328,5 @@ namespace BugBoard.Api.Services.BugReports
             return attachment;
         }
 
-        /// <summary>
-        /// Deletes files that were already written to disk during a failed attachment save operation.
-        /// </summary>
-        /// <param name="filePaths">The absolute paths of files that should be removed.</param>
-        private void DeleteSaveFiles(IEnumerable<string> filePaths)
-        {
-            foreach (string path in filePaths)
-            {
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-            }
-        }
     }
 }
