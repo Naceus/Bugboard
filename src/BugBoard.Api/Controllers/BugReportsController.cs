@@ -17,15 +17,18 @@ namespace BugBoard.Api.Controllers
         private readonly BugReportChangeService _bugReportChangeService;
         private readonly IBugReportCommentService _bugReportCommentService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBugReportAttachmentService _bugReportAttachmentService;
         public BugReportsController(
             BugBoardDbContext context,
             BugReportChangeService bugReportChangeService,
             IBugReportCommentService bugReportCommentService,
+            IBugReportAttachmentService bugReportAttachmentService,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _bugReportChangeService = bugReportChangeService;
             _bugReportCommentService = bugReportCommentService;
+            _bugReportAttachmentService = bugReportAttachmentService;
             _userManager = userManager;
         }
 
@@ -60,7 +63,7 @@ namespace BugBoard.Api.Controllers
             {
                 return Forbid();
             }
-            var canUseInternalComments = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canUseInternalComments = IsStaffUser();
 
             var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
             var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
@@ -97,7 +100,7 @@ namespace BugBoard.Api.Controllers
                 return Forbid();
             }
 
-            var canUseInternalComments = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canUseInternalComments = IsStaffUser();
 
             commentViewModel.Comment = commentViewModel.Comment.Trim();
             if (string.IsNullOrWhiteSpace(commentViewModel.Comment))
@@ -126,24 +129,30 @@ namespace BugBoard.Api.Controllers
             return View();
         }
 
-        // POST: BugReports/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
+        public async Task<IActionResult> Create(CreateBugReportViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var userId = _userManager.GetUserId(User);
-                bugReport.CreatedByUserId = userId;
-                bugReport.CreateAt = DateTime.UtcNow;
-
-                _context.Add(bugReport);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                return View(viewModel);
             }
-            return View(bugReport);
+
+            var bugReport = new BugReport
+            {
+                Title = viewModel.Title,
+                Description = viewModel.Description,
+                Priority = viewModel.Priority,
+                Status = BugStatus.Open,
+                CreatedByUserId = _userManager.GetUserId(User),
+                CreateAt = DateTime.UtcNow
+            };
+
+            _context.Add(bugReport);
+            await _context.SaveChangesAsync();
+            await _bugReportAttachmentService.SaveAttachmentsAsync(bugReport.Id, viewModel.Attachments, bugReport.CreatedByUserId);
+
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id});
         }
 
         // GET: BugReports/Edit/5
@@ -348,13 +357,17 @@ namespace BugBoard.Api.Controllers
         }
         private bool CanViewBugReport(BugReport bugReport)
         {
-            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canViewAllReports = IsStaffUser();
 
             var currentUserId = _userManager.GetUserId(User);
             var isOwner = currentUserId == bugReport.CreatedByUserId;
             
             return canViewAllReports || isOwner;                
 
+        }
+        private bool IsStaffUser()
+        {
+            return User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
         }
     }
 }

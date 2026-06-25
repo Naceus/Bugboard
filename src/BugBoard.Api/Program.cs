@@ -23,6 +23,8 @@ internal class Program
         builder.Services
             .AddScoped<IBugReportCommentService, BugReportCommentService>();
         builder.Services
+            .AddScoped<IBugReportAttachmentService, BugReportAttachmentService>();
+        builder.Services
             .AddScoped<IDashboardService, DashboardService>();
         builder.Services
             .AddScoped<DatabaseSeeder>();
@@ -31,6 +33,7 @@ internal class Program
             .AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<BugBoardDbContext>()
             .AddDefaultTokenProviders();
+
 
         builder.Services
             .Configure<DataProtectionTokenProviderOptions>
