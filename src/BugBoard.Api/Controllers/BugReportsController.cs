@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Net.Mime;
 
 namespace BugBoard.Api.Controllers
@@ -21,12 +22,14 @@ namespace BugBoard.Api.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBugReportAttachmentService _bugReportAttachmentService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IStringLocalizer<SharedResource> _localizer;
         public BugReportsController(
             BugBoardDbContext context,
             BugReportChangeService bugReportChangeService,
             IBugReportCommentService bugReportCommentService,
             IBugReportAttachmentService bugReportAttachmentService,
             IWebHostEnvironment environment,
+            IStringLocalizer<SharedResource> localizer,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
@@ -34,6 +37,7 @@ namespace BugBoard.Api.Controllers
             _bugReportCommentService = bugReportCommentService;
             _bugReportAttachmentService = bugReportAttachmentService;
             _environment = environment;
+            _localizer = localizer;
             _userManager = userManager;
         }
 
@@ -252,7 +256,6 @@ namespace BugBoard.Api.Controllers
 
         }
 
-
         // GET: BugReports/Delete/5
         [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> Delete(int? id)
@@ -311,12 +314,10 @@ namespace BugBoard.Api.Controllers
                 return RedirectToAction(nameof(Details), new { id = bugReport.Id });
             }
 
-            TempData["AttachmentSuccess"] = "Attachments uploaded successfully.";
+            TempData["AttachmentSuccess"] = _localizer["Attachments uploaded successfully."].Value;
             return RedirectToAction(nameof(Details), new { id = bugReport.Id });
 
         }
-
-
 
         // POST: BugReports/Delete/5
         [HttpPost, ActionName("Delete")]

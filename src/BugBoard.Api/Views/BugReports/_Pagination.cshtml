@@ -14,7 +14,7 @@
                    asp-route-title="@Model.Search"
                    aria-disabled="@(!Model.Pagination.HasPreviousPage)"
                    tabindex="@(Model.Pagination.HasPreviousPage ? "0" : "-1")">
-                    Back
+                    @Localizer["Back"]
                 </a>
             </li>
 
@@ -42,7 +42,7 @@
                    asp-route-title="@Model.Search"
                    aria-disabled="@(!Model.Pagination.HasNextPage)"
                    tabindex="@(Model.Pagination.HasNextPage ? "0" : "-1")">
-                    Next
+                    @Localizer["Next"]
                 </a>
             </li>
 

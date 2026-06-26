@@ -125,6 +125,18 @@ body {
     padding: 18px;
 }
 
+.app-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.language-switcher {
+    flex: 0 0 auto;
+    min-width: 8.5rem;
+}
+
 /* Status badges */
 
 .status-badge {

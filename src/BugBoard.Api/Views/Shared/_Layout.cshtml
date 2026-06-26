@@ -1,15 +1,16 @@
 ﻿@{
     string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
+    string currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@currentCulture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@pageTitle - BugBoard</title>
+    <title>@Localizer[pageTitle] - BugBoard</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -26,26 +27,26 @@
 
                     <div class="brand-text">
                         <strong>BugBoard</strong>
-                        <span>Issue Management</span>
+                        <span>@Localizer["Issue Management"]</span>
                     </div>
                 </a>
             </div>
 
             <nav class="sidebar-nav" aria-label="Main navigation">
-                <div class="sidebar-section-title">Navigation</div>
+                <div class="sidebar-section-title">@Localizer["Navigation"]</div>
 
                 <a asp-controller="Dashboard"
                    asp-action="Index"
                    class="sidebar-link @(currentController == "Dashboard" ? "active" : "")">
                     <span class="sidebar-link-icon">⌂</span>
-                    <span class="sidebar-link-text">Dashboard</span>
+                    <span class="sidebar-link-text">@Localizer["Dashboard"]</span>
                 </a>
 
                 <a asp-controller="BugReports"
                    asp-action="Index"
                    class="sidebar-link @(currentController == "BugReports" ? "active" : "")">
                     <span class="sidebar-link-icon">!</span>
-                    <span class="sidebar-link-text">Bug Reports</span>
+                    <span class="sidebar-link-text">@Localizer["Bug Reports"]</span>
                 </a>
 
                 @if (User.IsInRole("Admin"))
@@ -54,7 +55,7 @@
                        asp-action="Index"
                        class="sidebar-link @(currentController == "Admin" ? "active" : "")">
                         <span class="sidebar-link-icon">⚙</span>
-                        <span class="sidebar-link-text">Administration</span>
+                        <span class="sidebar-link-text">@Localizer["Administration"]</span>
                     </a>
                 }
             </nav>
@@ -67,7 +68,7 @@
 
                         <button type="submit" class="sidebar-logout-button">
                             <span class="sidebar-link-icon">↪</span>
-                            <span class="sidebar-link-text">Logout</span>
+                            <span class="sidebar-link-text">@Localizer["Logout"]</span>
                         </button>
                     </form>
                 </div>
@@ -77,9 +78,18 @@
         <main class="app-main">
             <header class="app-header">
                 <div>
-                    <h1>@pageTitle</h1>
-                    <p>Track, prioritize and manage software issues efficiently.</p>
+                    <h1>@Localizer[pageTitle]</h1>
+                    <p>@Localizer["Track, prioritize and manage software issues efficiently."]</p>
                 </div>
+                <form class="language-switcher" asp-controller="Localization" asp-action="SetLanguage" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <label class="visually-hidden" for="culture">@Localizer["Language"]</label>
+                    <select id="culture" name="culture" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="en" selected="@(currentCulture == "en")">@Localizer["English"]</option>
+                        <option value="de" selected="@(currentCulture == "de")">@Localizer["German"]</option>
+                    </select>
+                </form>
             </header>
 
             <section class="app-content">

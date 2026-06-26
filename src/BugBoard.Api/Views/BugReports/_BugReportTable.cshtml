@@ -3,8 +3,8 @@
 @if (!Model.Reports.Any())
 {
     <div class="empty-state">
-        <strong>No bug reports found.</strong>
-        <span>Try adjusting your search or filter criteria.</span>
+        <strong>@Localizer["No bug reports found."]</strong>
+        <span>@Localizer["Try adjusting your search or filter criteria."]</span>
     </div>
 }
 else
@@ -13,7 +13,7 @@ else
         @foreach (var item in Model.Reports)
         {
             var detailsUrl = Url.Action("Details", "BugReports", new { id = item.Id });
-            var ariaLabel = $"Open bug report {item.Title}";
+            var ariaLabel = $"{Localizer["Open bug report"]} {item.Title}";
 
             <a href="@detailsUrl" class="bug-report-card" aria-label="@ariaLabel">
                 <div class="bug-report-card-header">
@@ -28,17 +28,17 @@ else
 
                 <dl class="bug-report-card-meta">
                     <div>
-                        <dt>Assigned to</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedTo) ? "Unassigned" : item.AssignedTo)</dd>
+                        <dt>@Localizer["Assigned to"]</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)</dd>
                     </div>
 
                     <div>
-                        <dt>Created</dt>
+                        <dt>@Localizer["Created"]</dt>
                         <dd>@item.CreateAt.ToDisplayDateTime()</dd>
                     </div>
 
                     <div>
-                        <dt>Updated</dt>
+                        <dt>@Localizer["Updated"]</dt>
                         <dd>@item.UpdatedAt.ToDisplayDateTime()</dd>
                     </div>
                 </dl>
@@ -50,13 +50,13 @@ else
         <table class="table table-hover mb-0 clickable-table">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Assigned To</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
+                    <th>@Localizer["Title"]</th>
+                    <th>@Localizer["Description"]</th>
+                    <th>@Localizer["Status"]</th>
+                    <th>@Localizer["Priority"]</th>
+                    <th>@Localizer["Assigned to"]</th>
+                    <th>@Localizer["Created At"]</th>
+                    <th>@Localizer["Updated At"]</th>
                 </tr>
             </thead>
 
@@ -64,7 +64,7 @@ else
                 @foreach (var item in Model.Reports)
                 {
                     var detailsUrl = Url.Action("Details", "BugReports", new { id = item.Id });
-                    var ariaLabel = $"Open bug report {item.Title}";
+                    var ariaLabel = $"{Localizer["Open bug report"]} {item.Title}";
 
                     <tr>
                         <td>
@@ -93,7 +93,7 @@ else
 
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
-                                @(string.IsNullOrWhiteSpace(item.AssignedTo) ? "Unassigned" : item.AssignedTo)
+                                @(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)
                             </a>
                         </td>
 

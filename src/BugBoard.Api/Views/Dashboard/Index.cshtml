@@ -20,7 +20,7 @@
 
                 <div class="dashboard-metric-content">
                     <span class="dashboard-metric-title">
-                        @metric.Title
+                        @Localizer[metric.Title]
                     </span>
 
                     <strong class="dashboard-metric-value">
@@ -28,7 +28,7 @@
                     </strong>
 
                     <p class="dashboard-metric-description">
-                        @metric.Description
+                        @Localizer[metric.Description]
                     </p>
                 </div>
             </article>
@@ -39,22 +39,22 @@
         <article class="dashboard-card">
             <div class="dashboard-card-header">
                 <div>
-                    <h2>Recent Reports</h2>
-                    <p>Your latest bug reports and updates.</p>
+                    <h2>@Localizer["Recent Reports"]</h2>
+                    <p>@Localizer["Your latest bug reports and updates."]</p>
                 </div>
 
                 <a asp-controller="BugReports"
                    asp-action="Index"
                    class="dashboard-card-link">
-                    View all
+                    @Localizer["View all"]
                 </a>
             </div>
 
             @if (!Model.RecentReports.Any())
             {
                 <div class="dashboard-empty-state">
-                    <strong>No reports yet.</strong>
-                    <span>Create your first bug report to start tracking issues.</span>
+                    <strong>@Localizer["No reports yet."]</strong>
+                    <span>@Localizer["Create your first bug report to start tracking issues."]</span>
                 </div>
             }
             else
@@ -72,17 +72,17 @@
 
                                 <div class="dashboard-report-badges">
                                     <span class="dashboard-badge">
-                                        @report.Status
+                                        @Localizer[report.Status]
                                     </span>
 
                                     <span class="dashboard-badge dashboard-badge--priority">
-                                        @report.Priority
+                                        @Localizer[report.Priority]
                                     </span>
                                 </div>
                             </div>
 
                             <div class="dashboard-report-meta">
-                                Last activity: @report.LastActivityAt.ToDisplayDateTime()
+                                @Localizer["Last activity:"] @report.LastActivityAt.ToDisplayDateTime()
                             </div>
                         </a>
                     }
@@ -93,8 +93,8 @@
         <aside class="dashboard-card dashboard-actions-card">
             <div class="dashboard-card-header">
                 <div>
-                    <h2>Quick Actions</h2>
-                    <p>Common actions for your workflow.</p>
+                    <h2>@Localizer["Quick Actions"]</h2>
+                    <p>@Localizer["Common actions for your workflow."]</p>
                 </div>
             </div>
 
@@ -102,13 +102,13 @@
                 <a asp-controller="BugReports"
                    asp-action="Create"
                    class="btn btn-primary btn-lg w-100">
-                    Create Report
+                    @Localizer["Create Report"]
                 </a>
 
                 <a asp-controller="BugReports"
                    asp-action="Index"
                    class="btn btn-outline-secondary btn-lg w-100">
-                    View My Reports
+                    @Localizer["View My Reports"]
                 </a>
             </div>
         </aside>

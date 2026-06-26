@@ -9,23 +9,23 @@
     <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
 }
 
-<h1>Details</h1>
+<h1>@Localizer["Details"]</h1>
 <div>
     <hr />
     <div class="mb-3">
         <div class="d-flex gap-2 align-items-center w-100">
-            <a class="btn btn-dark" asp-action="Index">Back</a>
+            <a class="btn btn-dark" asp-action="Index">@Localizer["Back"]</a>
             @if (User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer))
             {
-                <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.BugReport.Id">Edit</a>
+                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.BugReport.Id">@Localizer["Edit"]</a>
                 
             }
             @if (User.IsInRole(ApplicationRoles.Admin))
             {
                 <form asp-action="Delete" asp-route-id="@Model.BugReport.Id" method="post"
-                    onsubmit="return confirm('Are you sure want to delete this bug report?');" class="ms-auto">
+                    onsubmit="return confirm('@Localizer["Are you sure want to delete this bug report?"]');" class="ms-auto">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">@Localizer["Delete"]</button>
                 </form>                
             }
         </div>
@@ -33,50 +33,50 @@
     <dl class="row">
 
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.Title)
+            @Localizer["Title"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BugReport.Title)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.Description)
+            @Localizer["Description"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BugReport.Description)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.CreatedByUser)
+            @Localizer["CreatedByUser"]
         </dt>
         <dd class=" col-sm-10">
-            @(Model.BugReport.CreatedByUser != null ? $"{Model.BugReport.CreatedByUser.FirstName} {Model.BugReport.CreatedByUser.LastName}" : "Unknown")
+            @(Model.BugReport.CreatedByUser != null ? $"{Model.BugReport.CreatedByUser.FirstName} {Model.BugReport.CreatedByUser.LastName}" : Localizer["Unknown"])
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.Status)
+            @Localizer["Status"]
         </dt>
         <dd class = "col-sm-10">
         <partial name="_StatusBadge" model="Model.BugReport.Status"/>
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.Priority)
+            @Localizer["Priority"]
         </dt>
         <dd class = "col-sm-10">
          <partial name="_PriorityBadge" model="Model.BugReport.Priority"/>
             
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.AssignedTo)
+            @Localizer["AssignedTo"]
         </dt>
         <dd class = "col-sm-10">
-        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedTo) ? "Unassigned" : Model.BugReport.AssignedTo)
+        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedTo) ? Localizer["Unassigned"] : Model.BugReport.AssignedTo)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.CreateAt)
+            @Localizer["CreateAt"]
         </dt>
         <dd class = "col-sm-10">
             @Model.BugReport.CreateAt.ToDisplayDateTime()
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BugReport.UpdatedAt)
+            @Localizer["UpdatedAt"]
         </dt>
         <dd class = "col-sm-10">
             @Model.BugReport.UpdatedAt.ToDisplayDateTime()
@@ -87,7 +87,7 @@
 <section class="bug-report-attachments">
     <div class="bug-report-attachments-header">
         <div class="bug-report-attachments-title">
-            <h2>Attachments</h2>
+            <h2>@Localizer["Attachments"]</h2>
             <span class="bug-report-attachments-count">@Model.Attachments.Count</span>
         </div>
         @if (Model.Attachments.Any())
@@ -118,7 +118,7 @@
     @if (!Model.Attachments.Any())
     {
         <div class="bug-report-attachments-empty">
-            No attachments uploaded.
+            @Localizer["No attachments uploaded."]
         </div>
     }
     else
@@ -159,7 +159,7 @@
                    multiple
                    accept=".pdf,.png,.jpg,.jpeg,.webp"
                    data-selected-list="#details-selected-attachments" />
-            <button class="btn btn-primary bug-report-upload-button" type="submit">Upload</button>
+            <button class="btn btn-primary bug-report-upload-button" type="submit">@Localizer["Upload"]</button>
         </div>
         <div id="details-selected-attachments" class="bug-report-selected-attachments"></div>
     </form>
@@ -168,7 +168,7 @@
 <hr />
 <section class="bug-report-activity">
     <div class="bug-report-activity-header">
-        <h2>Activity</h2>
+        <h2>@Localizer["Activity"]</h2>
     </div>
 
     <form class="bug-report-comment-form" asp-action="CreateComment" method="post">
@@ -176,21 +176,21 @@
         <input type="hidden" name="BugReportId" value="@Model.NewComment.BugReportId" />
 
         <div class="bug-report-comment-input">
-            <label class="form-label" for="Comment">Comment</label>
+            <label class="form-label" for="Comment">@Localizer["Comment"]</label>
             <textarea class="form-control"
                       id="Comment"
                       name="Comment"
                       rows="4"
                       maxlength="2000"
-                      placeholder="Write a comment..."></textarea>
+                      placeholder="@Localizer["Write a comment..."]"></textarea>
         </div>
 
         <div class="bug-report-comment-actions">
             @if (Model.CanCreateInternalComment)
             {
                 <select class="form-select bug-report-comment-visibility" name="CommentVisibility" aria-label="Comment visibility">
-                    <option value="@CommentVisibility.Public">Public</option>
-                    <option value="@CommentVisibility.Internal">Internal</option>
+                    <option value="@CommentVisibility.Public">@Localizer["Public"]</option>
+                    <option value="@CommentVisibility.Internal">@Localizer["Internal"]</option>
                 </select>
             }
             else
@@ -198,7 +198,7 @@
                 <input type="hidden" name="CommentVisibility" value="@CommentVisibility.Public" />
             }
 
-            <button class="btn btn-primary" type="submit">Save</button>
+            <button class="btn btn-success" type="submit">@Localizer["Save"]</button>
         </div>
     </form>
 
@@ -206,7 +206,7 @@
         @if (!Model.ActivityItems.Any())
         {
             <div class="bug-report-activity-empty">
-                No activity yet.
+                @Localizer["No activity yet."]
             </div>
         }
         else
@@ -221,12 +221,12 @@
 
                             @if (item.CommentVisibility == CommentVisibility.Internal)
                             {
-                                <span class="badge bg-warning text-dark">Internal</span>
+                                <span class="badge bg-warning text-dark">@Localizer["Internal"]</span>
                             }
                         }
                         else
                         {
-                            <span class="bug-report-activity-type">Log</span>
+                            <span class="bug-report-activity-type">@Localizer["Log"]</span>
                         }
 
                         <small class="text-muted ms-auto">

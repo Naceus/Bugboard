@@ -2,7 +2,7 @@
 
 BugBoard is a web-based bug tracking application built with ASP.NET Core MVC.
 
-It includes user authentication, role-based authorization, bug report management, activity logs, filtering, AJAX search and pagination.
+It includes user authentication, role-based authorization, bug report management, activity logs, attachments, filtering, AJAX search, pagination and English/German UI localization.
 
 ---
 
@@ -215,8 +215,10 @@ Reporters cannot edit or delete bug reports.
 - Admin/developer edit permission
 - Bug report management with status, priority and assignee fields
 - Activity log for bug report changes
+- Bug report attachments with validation, protected viewing and cleanup
 - Search, filtering and pagination for bug reports
 - AJAX-based bug report search
+- English/German UI localization with a language switcher
 - Bootstrap-based responsive UI
 
 ---
@@ -276,6 +278,7 @@ After setup, check the following cases:
 - Verify that admins and developers can see all bug reports.
 - Verify that only admins can delete bug reports.
 - Verify that admins and developers can edit bug reports.
+- Switch between English and German and verify that the main UI labels update.
 
 ---
 
