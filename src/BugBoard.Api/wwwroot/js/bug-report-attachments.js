@@ -24,7 +24,6 @@
             removeButton.className = "bug-report-selected-attachment-remove";
             removeButton.type = "button";
             removeButton.setAttribute("aria-label", "Remove " + file.name);
-            removeButton.textContent = "x";
 
             removeButton.addEventListener("click", function () {
                 files.splice(index, 1);

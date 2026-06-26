@@ -6,33 +6,33 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1>Admin Area</h1>
-        <p class="text-muted mb-0">Manage users and their roles.</p>
+        <h1>@Localizer["Admin Area"]</h1>
+        <p class="text-muted mb-0">@Localizer["Manage users and their roles."]</p>
     </div>
 </div>
 
 <form id="adminUserFilterForm" asp-action="Index" method="get" class="mb-3">
     <div class="row g-2 align-items-end">
         <div class="col-md-6">
-            <label for="adminUserSearch" class="form-label">Search</label>
+            <label for="adminUserSearch" class="form-label">@Localizer["Search"]</label>
             <input name="search"
                    id="adminUserSearch"
                    class="form-control"
-                   placeholder="Search name or email"
+                   placeholder="@Localizer["Search name or email"]"
                    value="@Model.Search" />
         </div>
 
         <div class="col-md-4">
-            <label for="adminRoleFilter" class="form-label">Role</label>
+            <label for="adminRoleFilter" class="form-label">@Localizer["Role"]</label>
             <select name="role"
                     id="adminRoleFilter"
                     class="form-select">
-                <option value="">All roles</option>
+                <option value="">@Localizer["All roles"]</option>
 
                 @foreach (var role in Model.AvailableRoles)
                 {
                     <option value="@role" selected="@(Model.SelectedRole == role)">
-                        @role
+                        @Localizer[role]
                     </option>
                 }
             </select>
@@ -40,7 +40,7 @@
 
         <div class="col-md-2 d-flex gap-2">
             <a asp-action="Index" class="btn btn-secondary w-100">
-                Reset
+                @Localizer["Reset"]
             </a>
         </div>
     </div>

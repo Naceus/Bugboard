@@ -254,20 +254,38 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
     flex: 0 0 auto;
-    border: 1px solid #e5e7eb;
+    border: 0;
     border-radius: 999px;
-    background: #ffffff;
-    color: #64748b;
-    font-weight: 700;
-    line-height: 1;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+    .bug-report-selected-attachment-remove::before,
+    .bug-report-selected-attachment-remove::after {
+        content: "";
+        position: absolute;
+        width: 0.75rem;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+    }
+
+    .bug-report-selected-attachment-remove::before {
+        transform: rotate(45deg);
+    }
+
+    .bug-report-selected-attachment-remove::after {
+        transform: rotate(-45deg);
 }
 
     .bug-report-selected-attachment-remove:hover,
     .bug-report-selected-attachment-remove:focus {
-        border-color: #fecaca;
         background: #fef2f2;
         color: #991b1b;
     }

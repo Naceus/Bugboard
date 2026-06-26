@@ -93,6 +93,10 @@ body {
 }
 
 .brand-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
     color: inherit;
 }
 
@@ -100,6 +104,12 @@ body {
     .brand-link:focus {
         color: inherit;
     }
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
 .sidebar-link {
     color: #d1d5db;
