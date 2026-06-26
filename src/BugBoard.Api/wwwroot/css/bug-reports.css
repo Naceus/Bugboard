@@ -28,6 +28,11 @@
     display: flex;
 }
 
+.bug-report-description-input,
+.bug-report-comment-input textarea {
+    resize: vertical;
+}
+
 /* Mobile card list */
 
 .bug-report-list {
@@ -126,11 +131,335 @@
         color: #0f172a;
     }
 
+/* Details activity */
+
+.bug-report-attachments {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.bug-report-attachments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.bug-report-attachments-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+    .bug-report-attachments-title h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+.bug-report-attachments-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #075985;
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.bug-report-attachments-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0;
+}
+
+    .bug-report-attachments-toggle span {
+        display: block;
+        width: 1rem;
+        height: 2px;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: #475569;
+    }
+
+    .bug-report-attachments-toggle:hover,
+    .bug-report-attachments-toggle:focus {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+    }
+
+.bug-report-attachments-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+    .bug-report-attachments-list.is-collapsed {
+        display: none;
+    }
+
+.bug-report-attachment-upload-form {
+    display: grid;
+    gap: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-attachment-upload-controls {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.bug-report-upload-button {
+    min-width: 6rem;
+}
+
+.bug-report-selected-attachments {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.bug-report-selected-attachment {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0.625rem 0.75rem;
+}
+
+.bug-report-selected-attachment-name {
+    min-width: 0;
+    color: #0f172a;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+.bug-report-selected-attachment-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+    .bug-report-selected-attachment-remove::before,
+    .bug-report-selected-attachment-remove::after {
+        content: "";
+        position: absolute;
+        width: 0.75rem;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+    }
+
+    .bug-report-selected-attachment-remove::before {
+        transform: rotate(45deg);
+    }
+
+    .bug-report-selected-attachment-remove::after {
+        transform: rotate(-45deg);
+}
+
+    .bug-report-selected-attachment-remove:hover,
+    .bug-report-selected-attachment-remove:focus {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+.bug-report-attachment-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+}
+
+.bug-report-attachment-main {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+    .bug-report-attachment-main span {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+.bug-report-attachment-link {
+    color: #0f172a;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+    .bug-report-attachment-link:hover,
+    .bug-report-attachment-link:focus {
+        color: #2563eb;
+        text-decoration: underline;
+    }
+
+.bug-report-attachment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: #475569;
+    font-size: 0.8125rem;
+}
+
+.bug-report-attachments-empty {
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+
+.bug-report-activity {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.bug-report-activity-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+    .bug-report-activity-header h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+.bug-report-activity-scroll {
+    display: grid;
+    gap: 0.75rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-comment-form {
+    display: grid;
+    gap: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.bug-report-comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.bug-report-comment-visibility {
+    width: auto;
+    min-width: 9rem;
+}
+
+.bug-report-activity-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.875rem;
+    background: #ffffff;
+}
+
+.bug-report-comment-item {
+    border-left: 4px solid #2563eb;
+}
+
+.bug-report-log-item {
+    background: #f8fafc;
+    border-left: 4px solid #94a3b8;
+}
+
+.bug-report-activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bug-report-activity-type {
+    color: #475569;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bug-report-comment-text {
+    margin: 0.65rem 0 0;
+    color: #0f172a;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.bug-report-activity-empty {
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+
 /* Tablet layout */
 
 @media (min-width: 768px) {
     .bug-report-create-button {
         width: auto;
+    }
+
+    .bug-report-attachment-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .bug-report-attachment-meta {
+        justify-content: flex-end;
+        text-align: right;
+    }
+
+    .bug-report-attachment-upload-controls {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
     }
 
     .bug-report-filter-grid {

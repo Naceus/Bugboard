@@ -2,44 +2,48 @@
 
 @{
     ViewData["Title"] = "Edit";
+    ViewData["Subtitle"] = "Update the details of this bug report.";
 }
 
-<h1>Edit</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
+}
+
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-12 col-lg-8 col-xl-7">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreateAt" />
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+                <label asp-for="Title" class="control-label">@Localizer["Title"]</label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <label asp-for="Description" class="control-label">@Localizer["Description"]</label>
+                <textarea asp-for="Description" class="form-control bug-report-description-input" rows="5"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
+                <label asp-for="Status" class="control-label">@Localizer["Status"]</label>
                 <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<BugStatus>()"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Priority" class="control-label"></label>
+                <label asp-for="Priority" class="control-label">@Localizer["Priority"]</label>
                 <select asp-for="Priority" class="form-control" asp-items="Html.GetEnumSelectList<BugPriority>()"></select>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AssignedTo" class="control-label"></label>
+                <label asp-for="AssignedTo" class="control-label">@Localizer["AssignedTo"]</label>
                 <input asp-for="AssignedTo" class="form-control" />
                 <span asp-validation-for="AssignedTo" class="text-danger"></span>
             </div>
             <div class="form-group mt-3">
-                <a class="btn btn-dark" asp-action="Details" asp-route-id="@Model.Id">Back</a>
-                <input type="submit" value="Save" class="btn btn-success" />
+                <a class="btn btn-dark" asp-action="Details" asp-route-id="@Model.Id">@Localizer["Back"]</a>
+                <input type="submit" value="@Localizer["Save"]" class="btn btn-success" />
             </div>            
         </form>
     </div>

@@ -10,7 +10,7 @@
 <div class="bug-report-page">
     <div class="bug-report-actions">
         <a class="btn btn-success bug-report-create-button" asp-action="Create">
-            Create New
+            @Localizer["Create New"]
         </a>
     </div>
 
@@ -21,37 +21,37 @@
 
         <div class="bug-report-filter-grid">
             <div>
-                <label class="form-label" for="titleSearch">Search</label>
+                <label class="form-label" for="titleSearch">@Localizer["Search"]</label>
                 <input name="title"
                        id="titleSearch"
                        class="form-control"
-                       placeholder="Search title"
+                       placeholder="@Localizer["Search title"]"
                        value="@Model.Search" />
             </div>
 
             <div>
-                <label class="form-label" for="statusFilter">Status</label>
+                <label class="form-label" for="statusFilter">@Localizer["Status"]</label>
                 <select name="status" id="statusFilter" class="form-select">
-                    <option value="">All statuses</option>
+                    <option value="">@Localizer["All statuses"]</option>
 
                     @foreach (var status in Enum.GetValues<BugStatus>())
                     {
                         <option value="@status" selected="@(Model.SelectedStatus == status)">
-                            @status
+                            @Localizer[status.ToString()]
                         </option>
                     }
                 </select>
             </div>
 
             <div>
-                <label class="form-label" for="priorityFilter">Priority</label>
+                <label class="form-label" for="priorityFilter">@Localizer["Priority"]</label>
                 <select name="priority" id="priorityFilter" class="form-select">
-                    <option value="">All priorities</option>
+                    <option value="">@Localizer["All priorities"]</option>
 
                     @foreach (var priority in Enum.GetValues<BugPriority>())
                     {
                         <option value="@priority" selected="@(Model.SelectedPriority == priority)">
-                            @priority
+                            @Localizer[priority.ToString()]
                         </option>
                     }
                 </select>
@@ -59,7 +59,7 @@
 
             <div class="bug-report-filter-actions">
                 <a asp-action="Index" class="btn btn-secondary">
-                    Reset
+                    @Localizer["Reset"]
                 </a>
             </div>
 

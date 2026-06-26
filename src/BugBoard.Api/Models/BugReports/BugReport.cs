@@ -7,10 +7,10 @@ public class BugReport
     public int Id { get; set; }
 
     [Required]
-    public string? Title { get; set; }
+    public required string Title { get; set; }
 
     [Required]
-    public string? Description { get; set; }
+    public required string Description { get; set; }
 
     public BugStatus Status { get; set; } = BugStatus.Open;
     public BugPriority Priority { get; set; } = BugPriority.Low;
@@ -21,5 +21,7 @@ public class BugReport
     public ApplicationUser? CreatedByUser { get; set; }
 
     public List<BugReportLog> Logs { get; set; } = new();
+    public List<BugReportComment> Comments { get; set; } = new();
+    public List<BugReportAttachment> Attachments { get; set; } = new();
 }
 

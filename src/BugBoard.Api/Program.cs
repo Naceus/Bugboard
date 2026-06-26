@@ -4,7 +4,9 @@ using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.Services.Dashboard;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 internal class Program
 {
@@ -14,12 +16,18 @@ internal class Program
 
         // Add services to the container.
         builder.Services
+            .AddLocalization(options => options.ResourcesPath = "Resources");
+        builder.Services
             .AddControllersWithViews();
         builder.Services
             .AddDbContext<BugBoardDbContext>(options => options
             .UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services
             .AddScoped<BugReportChangeService>();
+        builder.Services
+            .AddScoped<IBugReportCommentService, BugReportCommentService>();
+        builder.Services
+            .AddScoped<IBugReportAttachmentService, BugReportAttachmentService>();
         builder.Services
             .AddScoped<IDashboardService, DashboardService>();
         builder.Services
@@ -29,6 +37,7 @@ internal class Program
             .AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<BugBoardDbContext>()
             .AddDefaultTokenProviders();
+
 
         builder.Services
             .Configure<DataProtectionTokenProviderOptions>
@@ -52,6 +61,19 @@ internal class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        var supportedCultures = new[]
+        {
+            new CultureInfo("en"),
+            new CultureInfo("de")
+        };
+
+        app.UseRequestLocalization(new RequestLocalizationOptions
+        {
+            DefaultRequestCulture = new RequestCulture("en"),
+            SupportedCultures = supportedCultures,
+            SupportedUICultures = supportedCultures
+        });
         
         app.UseAuthentication();
         app.UseAuthorization();

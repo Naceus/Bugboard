@@ -2,13 +2,13 @@
 @switch (Model)
 {
     case BugPriority.Critical:
-        <span class="badge bg-danger">Critical</span>
+        <span class="badge bg-danger">@Localizer["Critical"]</span>
         break;
     case BugPriority.Medium:
-        <span class="badge bg-warning">Medium</span>
+        <span class="badge bg-warning">@Localizer["Medium"]</span>
         break;
     case BugPriority.Low:
-        <span class="badge bg-success">Low</span>
+        <span class="badge bg-success">@Localizer["Low"]</span>
         break;
          
 }

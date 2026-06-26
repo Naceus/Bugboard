@@ -11,4 +11,6 @@ public class BugBoardDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<BugReport> BugReports => Set<BugReport>();
     public DbSet<BugReportLog> BugReportLogs => Set<BugReportLog>();
+    public DbSet<BugReportComment> BugReportComments => Set<BugReportComment>();
+    public DbSet<BugReportAttachment> BugReportAttachments => Set<BugReportAttachment>();
 }

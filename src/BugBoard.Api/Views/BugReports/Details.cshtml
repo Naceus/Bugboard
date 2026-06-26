@@ -1,27 +1,31 @@
 ﻿
-@model BugReport
+@model BugReportDetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
+    ViewData["Subtitle"] = "View status, priority and activity for this bug report.";
 }
 
-<h1>Details</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/bug-reports.css" asp-append-version="true" />
+}
+
 <div>
     <hr />
     <div class="mb-3">
         <div class="d-flex gap-2 align-items-center w-100">
-            <a class="btn btn-dark" asp-action="Index">Back</a>
+            <a class="btn btn-dark" asp-action="Index">@Localizer["Back"]</a>
             @if (User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer))
             {
-                <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.BugReport.Id">@Localizer["Edit"]</a>
                 
             }
             @if (User.IsInRole(ApplicationRoles.Admin))
             {
-                <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
-                    onsubmit="return confirm('Are you sure want to delete this bug report?');" class="ms-auto">
+                <form asp-action="Delete" asp-route-id="@Model.BugReport.Id" method="post"
+                    onsubmit="return confirm('@Localizer["Are you sure want to delete this bug report?"]');" class="ms-auto">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">@Localizer["Delete"]</button>
                 </form>                
             }
         </div>
@@ -29,78 +33,238 @@
     <dl class="row">
 
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
+            @Localizer["Title"]
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.BugReport.Title)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @Localizer["Description"]
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.BugReport.Description)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedByUser)
+            @Localizer["CreatedByUser"]
         </dt>
         <dd class=" col-sm-10">
-            @(Model.CreatedByUser != null ? $"{Model.CreatedByUser.FirstName} {Model.CreatedByUser.LastName}" : "Unknown")
+            @(Model.BugReport.CreatedByUser != null ? $"{Model.BugReport.CreatedByUser.FirstName} {Model.BugReport.CreatedByUser.LastName}" : Localizer["Unknown"])
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
+            @Localizer["Status"]
         </dt>
         <dd class = "col-sm-10">
-        <partial name="_StatusBadge" model="Model.Status"/>
+        <partial name="_StatusBadge" model="Model.BugReport.Status"/>
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Priority)
+            @Localizer["Priority"]
         </dt>
         <dd class = "col-sm-10">
-         <partial name="_PriorityBadge" model="Model.Priority"/>
+         <partial name="_PriorityBadge" model="Model.BugReport.Priority"/>
             
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AssignedTo)
+            @Localizer["AssignedTo"]
         </dt>
         <dd class = "col-sm-10">
-        @(string.IsNullOrWhiteSpace(Model.AssignedTo) ? "Unassigned" : Model.AssignedTo)
+        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedTo) ? Localizer["Unassigned"] : Model.BugReport.AssignedTo)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreateAt)
+            @Localizer["CreateAt"]
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreateAt)
+            @Model.BugReport.CreateAt.ToDisplayDateTime()
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
+            @Localizer["UpdatedAt"]
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
+            @Model.BugReport.UpdatedAt.ToDisplayDateTime()
         </dd>
     </dl>
 </div>
 <hr />
-@if (!Model.Logs.Any())
-{
-    <div class="card-body border text-muted">
-        No activity yet.
-    </div>
-}
-<div class="card">
-        @foreach(var log in Model.Logs)
+<section class="bug-report-attachments">
+    <div class="bug-report-attachments-header">
+        <div class="bug-report-attachments-title">
+            <h2>@Localizer["Attachments"]</h2>
+            <span class="bug-report-attachments-count">@Model.Attachments.Count</span>
+        </div>
+        @if (Model.Attachments.Any())
         {
-            <div class="card-body">
-                <div class="d-flex gap-2 align-items-center w-100">
-                    <span>@log.Message</span>
+            <button class="bug-report-attachments-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="bug-report-attachments-list"
+                    data-attachments-toggle="#bug-report-attachments-list">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        }
+    </div>
+    @if (TempData["AttachmentSuccess"] is string attachmentSuccess)
+    {
+        <div class="alert alert-success">
+            @attachmentSuccess
+        </div>
+    }
+    else if (TempData["AttachmentError"] is string attachmentError)
+    {
+        <div class="alert alert-danger">
+            @attachmentError
+        </div>
+    }
+    @if (!Model.Attachments.Any())
+    {
+        <div class="bug-report-attachments-empty">
+            @Localizer["No attachments uploaded."]
+        </div>
+    }
+    else
+    {
+        <div id="bug-report-attachments-list" class="bug-report-attachments-list is-collapsed">
+            @foreach (var attachment in Model.Attachments)
+            {
+                <article class="bug-report-attachment-item">
+                    <div class="bug-report-attachment-main">
+                        <a asp-action="ViewAttachment"
+                           asp-route-id="@attachment.Id"
+                           target="_blank"
+                           rel="noopener"
+                           class="bug-report-attachment-link">
+                            @attachment.OriginalFileName
+                        </a>
+                    </div>
+                    <div class="bug-report-attachment-meta">
+                        <span>@FormatFileSize(attachment.FileSize)</span>
+                        <span>@attachment.UploadedAt.ToDisplayDateTime()</span>
+                    </div>
+                </article>
+            }
+        </div>
+    }
 
-                    <small class="text-muted ms-auto">
-                        @log.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                    </small>
-                </div>
+    <form class="bug-report-attachment-upload-form"
+          asp-action="AddAttachments"
+          asp-route-id="@Model.BugReport.Id"
+          method="post"
+          enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="BugReportId" value="@Model.BugReport.Id" />
+        <div class="bug-report-attachment-upload-controls">
+            <input class="form-control js-attachment-input"
+                   type="file"
+                   name="Attachments"
+                   multiple
+                   accept=".pdf,.png,.jpg,.jpeg,.webp"
+                   data-selected-list="#details-selected-attachments" />
+            <button class="btn btn-primary bug-report-upload-button" type="submit">@Localizer["Upload"]</button>
+        </div>
+        <div id="details-selected-attachments" class="bug-report-selected-attachments"></div>
+    </form>
+</section>
+
+<hr />
+<section class="bug-report-activity">
+    <div class="bug-report-activity-header">
+        <h2>@Localizer["Activity"]</h2>
+    </div>
+
+    <form class="bug-report-comment-form" asp-action="CreateComment" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <input type="hidden" name="BugReportId" value="@Model.NewComment.BugReportId" />
+
+        <div class="bug-report-comment-input">
+            <label class="form-label" for="Comment">@Localizer["Comment"]</label>
+            <textarea class="form-control"
+                      id="Comment"
+                      name="Comment"
+                      rows="4"
+                      maxlength="2000"
+                      placeholder="@Localizer["Write a comment..."]">@Model.NewComment.Comment</textarea>
+        </div>
+
+        <div class="bug-report-comment-actions">
+            @if (Model.CanCreateInternalComment)
+            {
+                <select class="form-select bug-report-comment-visibility" name="CommentVisibility" aria-label="Comment visibility">
+                    <option value="@CommentVisibility.Public">@Localizer["Public"]</option>
+                    <option value="@CommentVisibility.Internal">@Localizer["Internal"]</option>
+                </select>
+            }
+            else
+            {
+                <input type="hidden" name="CommentVisibility" value="@CommentVisibility.Public" />
+            }
+
+            <button class="btn btn-success" type="submit">@Localizer["Save"]</button>
+        </div>
+    </form>
+
+    <div class="bug-report-activity-scroll">
+        @if (!Model.ActivityItems.Any())
+        {
+            <div class="bug-report-activity-empty">
+                @Localizer["No activity yet."]
             </div>
         }
-    </div>    
+        else
+        {
+            @foreach (var item in Model.ActivityItems)
+            {
+                <article class="bug-report-activity-item @(item.IsComment ? "bug-report-comment-item" : "bug-report-log-item")">
+                    <div class="bug-report-activity-meta">
+                        @if (item.IsComment)
+                        {
+                            <strong>@item.AuthorName</strong>
 
+                            @if (item.CommentVisibility == CommentVisibility.Internal)
+                            {
+                                <span class="badge bg-warning text-dark">@Localizer["Internal"]</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="bug-report-activity-type">@Localizer["Log"]</span>
+                        }
+
+                        <small class="text-muted ms-auto">
+                            @item.CreatedAt.ToDisplayDateTime()
+                        </small>
+                    </div>
+
+                    <p class="bug-report-comment-text">@item.Message</p>
+                </article>
+            }
+        }
+    </div>
+</section>
+
+@functions {
+    private static string FormatFileSize(long fileSize)
+    {
+        const long oneKilobyte = 1024;
+        const long oneMegabyte = oneKilobyte * 1024;
+
+        if (fileSize >= oneMegabyte)
+        {
+            return $"{fileSize / (double)oneMegabyte:0.##} MB";
+        }
+
+        if (fileSize >= oneKilobyte)
+        {
+            return $"{fileSize / (double)oneKilobyte:0.##} KB";
+        }
+
+        return $"{fileSize} bytes";
+    }
+}
+
+@section Scripts {
+    <script src="~/js/bug-report-attachments.js" asp-append-version="true"></script>
+}
 
 
 

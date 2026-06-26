@@ -4,13 +4,13 @@
     switch (Model)
     {
         case BugStatus.Open:
-            <span class="badge bg-success">Open</span>
+            <span class="badge bg-success">@Localizer["Open"]</span>
             break;
         case BugStatus.Closed:
-            <span class="badge bg-danger">Closed</span>
+            <span class="badge bg-danger">@Localizer["Closed"]</span>
             break;
         case BugStatus.InProgress:
-            <span class="badge bg-warning">In Progress</span>
+            <span class="badge bg-warning">@Localizer["In Progress"]</span>
             break;
 
     }

@@ -1,4 +1,5 @@
 ﻿using BugBoard.Api.Data;
+using BugBoard.Api.Exceptions;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using System.Net.Mime;
 
 namespace BugBoard.Api.Controllers
 {
@@ -15,11 +18,26 @@ namespace BugBoard.Api.Controllers
     {
         private readonly BugBoardDbContext _context;
         private readonly BugReportChangeService _bugReportChangeService;
+        private readonly IBugReportCommentService _bugReportCommentService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public BugReportsController(BugBoardDbContext context, BugReportChangeService bugReportChangeService, UserManager<ApplicationUser> userManager)
+        private readonly IBugReportAttachmentService _bugReportAttachmentService;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IStringLocalizer<SharedResource> _localizer;
+        public BugReportsController(
+            BugBoardDbContext context,
+            BugReportChangeService bugReportChangeService,
+            IBugReportCommentService bugReportCommentService,
+            IBugReportAttachmentService bugReportAttachmentService,
+            IWebHostEnvironment environment,
+            IStringLocalizer<SharedResource> localizer,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _bugReportChangeService = bugReportChangeService;
+            _bugReportCommentService = bugReportCommentService;
+            _bugReportAttachmentService = bugReportAttachmentService;
+            _environment = environment;
+            _localizer = localizer;
             _userManager = userManager;
         }
 
@@ -45,6 +63,7 @@ namespace BugBoard.Api.Controllers
                 .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
                 .Include(b => b.CreatedByUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (bugReport == null)
             {
                 return NotFound();
@@ -54,8 +73,62 @@ namespace BugBoard.Api.Controllers
             {
                 return Forbid();
             }
-            
-            return View(bugReport);
+
+            var newComment = new CreateBugReportCommentViewModel
+            {
+                BugReportId = bugReport.Id
+            };
+
+            var viewModel = await BuildDetailsViewModelAsync(bugReport, newComment);
+                      
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateComment(CreateBugReportCommentViewModel commentViewModel)
+        {
+            var bugReport = await _context.BugReports
+                                  .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
+                                  .Include(b => b.CreatedByUser)
+                                  .FirstOrDefaultAsync(m => m.Id == commentViewModel.BugReportId);
+
+            if (bugReport == null)
+            {
+                return NotFound();
+            }
+
+            if (!CanViewBugReport(bugReport))
+            {
+                return Forbid();
+            }
+
+            var canUseInternalComments = IsStaffUser();
+
+            if (string.IsNullOrWhiteSpace(commentViewModel.Comment))
+            {
+                ModelState.AddModelError(nameof(commentViewModel.Comment), "Comment is required.");
+            }
+            else
+            {
+                commentViewModel.Comment = commentViewModel.Comment.Trim();
+            }
+
+            if (!ModelState.IsValid)
+            {
+             
+                var viewModel = await BuildDetailsViewModelAsync(bugReport, commentViewModel);
+                return View("Details", viewModel);
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            await _bugReportCommentService.CreateCommentAsync(
+                commentViewModel,
+                currentUser,
+                User.Identity?.Name,
+                canUseInternalComments);
+
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id });
         }
 
         // GET: BugReports/Create
@@ -64,24 +137,45 @@ namespace BugBoard.Api.Controllers
             return View();
         }
 
-        // POST: BugReports/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
+        public async Task<IActionResult> Create(CreateBugReportViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var userId = _userManager.GetUserId(User);
-                bugReport.CreatedByUserId = userId;
-                bugReport.CreateAt = DateTime.UtcNow;
+                return View(viewModel);
+            }
 
+            var bugReport = new BugReport
+            {
+                Title = viewModel.Title,
+                Description = viewModel.Description,
+                Priority = viewModel.Priority,
+                Status = BugStatus.Open,
+                CreatedByUserId = _userManager.GetUserId(User),
+                CreateAt = DateTime.UtcNow
+            };
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
                 _context.Add(bugReport);
                 await _context.SaveChangesAsync();
+                await _bugReportAttachmentService.SaveAttachmentsAsync(bugReport.Id, viewModel.Attachments ?? new List<IFormFile>(), bugReport.CreatedByUserId);
 
-                return RedirectToAction(nameof(Index));
+                await transaction.CommitAsync();
+
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
             }
-            return View(bugReport);
+            catch (BugReportAttachmentValidationException ex)
+            {
+                await transaction.RollbackAsync();
+
+                ModelState.AddModelError(nameof(viewModel.Attachments), ex.Message);
+                return View(viewModel);
+            }
+
         }
 
         // GET: BugReports/Edit/5
@@ -157,7 +251,6 @@ namespace BugBoard.Api.Controllers
 
         }
 
-
         // GET: BugReports/Delete/5
         [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> Delete(int? id)
@@ -178,6 +271,49 @@ namespace BugBoard.Api.Controllers
 
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAttachments (int id, AddAttachmentsToBugReportViewModel viewModel)
+        {
+            if (viewModel.BugReportId != id)
+            {
+                return BadRequest();
+            }
+
+            var bugReport = await _context.BugReports
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (bugReport == null)
+            {
+                return NotFound();
+            }
+            if (!CanViewBugReport(bugReport))
+            {
+                return Forbid();
+            }
+
+            if (viewModel.Attachments == null || !viewModel.Attachments.Any())
+            {
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+            }
+
+            try
+            {
+                await _bugReportAttachmentService.SaveAttachmentsAsync(
+                    bugReport.Id,
+                    viewModel.Attachments,
+                    _userManager.GetUserId(User));
+            }
+            catch (BugReportAttachmentValidationException ex)
+            {
+                TempData["AttachmentError"] = ex.Message;
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+            }
+
+            TempData["AttachmentSuccess"] = _localizer["Attachments uploaded successfully."].Value;
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+
+        }
+
         // POST: BugReports/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -185,12 +321,18 @@ namespace BugBoard.Api.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var bugReport = await _context.BugReports.FindAsync(id);
-            if (bugReport != null)
+            if (bugReport == null)
             {
-                _context.BugReports.Remove(bugReport);
+                return NotFound();
             }
 
+            var attachmentFilePaths = await _bugReportAttachmentService.GetAttachmentFilePathsForBugReportAsync(id);
+
+            _context.BugReports.Remove(bugReport);
             await _context.SaveChangesAsync();
+
+            _bugReportAttachmentService.DeleteAttachmentFiles(attachmentFilePaths);
+
             return RedirectToAction(nameof(Index));
 
         }
@@ -241,7 +383,7 @@ namespace BugBoard.Api.Controllers
 
             IQueryable<BugReport> bugReports = _context.BugReports;
 
-            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canViewAllReports = IsStaffUser();
             if (!canViewAllReports)
             {
                 var currentUserId = _userManager.GetUserId(User);
@@ -286,13 +428,97 @@ namespace BugBoard.Api.Controllers
         }
         private bool CanViewBugReport(BugReport bugReport)
         {
-            var canViewAllReports = User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+            var canViewAllReports = IsStaffUser();
 
             var currentUserId = _userManager.GetUserId(User);
             var isOwner = currentUserId == bugReport.CreatedByUserId;
             
             return canViewAllReports || isOwner;                
 
+        }
+        private bool IsStaffUser()
+        {
+            return User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
+        }
+
+        private async Task<List<BugReportAttachmentViewModel>> BuildAttachmentViewModelsAsync(int bugReportId)
+        {
+          return await _context.BugReportAttachments
+                        .Where(a => a.BugReportId == bugReportId)
+                        .OrderByDescending(a => a.UploadedAt)
+                        .Select(a => new BugReportAttachmentViewModel
+                        {
+                            Id = a.Id,
+                            OriginalFileName = a.OriginalFileName,
+                            ContentType = a.ContentType,
+                            FileSize = a.FileSize,
+                            UploadedAt = a.UploadedAt,
+                        }
+                        )
+                        .ToListAsync();
+            
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewAttachment(int id)
+        {
+            var attachment = await _context.BugReportAttachments
+                                .Include(a => a.BugReport)
+                                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            if (!CanViewBugReport(attachment.BugReport))
+            {
+                return Forbid();
+            }
+
+            var filePath = Path.Combine(
+                _environment.ContentRootPath,
+                "App_Data",
+                "uploads",
+                "bug-reports",
+                attachment.BugReportId.ToString(),
+                attachment.StoredFileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var contentDisposition = new ContentDisposition
+            {
+                Inline = true,
+                FileName = attachment.OriginalFileName
+            };
+
+            Response.Headers.ContentDisposition = contentDisposition.ToString();
+
+            return PhysicalFile(filePath, attachment.ContentType, enableRangeProcessing: true);
+
+        }
+
+        private async Task<BugReportDetailsViewModel> BuildDetailsViewModelAsync(BugReport bugReport, CreateBugReportCommentViewModel newComment)
+        {
+            var canUseInternalComments = IsStaffUser();
+            var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
+            var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
+            var attachments = await BuildAttachmentViewModelsAsync(bugReport.Id);
+            var viewModel = new BugReportDetailsViewModel
+            {
+                BugReport = bugReport,
+                Logs = bugReport.Logs,
+                Comments = comments,
+                ActivityItems = activityItems,
+                NewComment = newComment,
+                CanCreateInternalComment = canUseInternalComments,
+                Attachments = attachments
+            };
+
+            return viewModel;
         }
     }
 }
