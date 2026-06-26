@@ -73,26 +73,14 @@ namespace BugBoard.Api.Controllers
             {
                 return Forbid();
             }
-            var canUseInternalComments = IsStaffUser();
 
-            var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
-            var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
-            var attachments = await BuildAttachmentViewModelsAsync(bugReport.Id);
-
-            var viewModel = new BugReportDetailsViewModel
+            var newComment = new CreateBugReportCommentViewModel
             {
-                BugReport = bugReport,
-                Logs = bugReport.Logs,
-                Comments = comments,
-                ActivityItems = activityItems,
-                NewComment = new CreateBugReportCommentViewModel
-                {
-                    BugReportId = bugReport.Id
-                },
-                CanCreateInternalComment = canUseInternalComments,
-                Attachments = attachments
+                BugReportId = bugReport.Id
             };
-            
+
+            var viewModel = await BuildDetailsViewModelAsync(bugReport, newComment);
+                      
             return View(viewModel);
         }
 
@@ -101,7 +89,9 @@ namespace BugBoard.Api.Controllers
         public async Task<IActionResult> CreateComment(CreateBugReportCommentViewModel commentViewModel)
         {
             var bugReport = await _context.BugReports
-                .FirstOrDefaultAsync(b => b.Id == commentViewModel.BugReportId);
+                                  .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
+                                  .Include(b => b.CreatedByUser)
+                                  .FirstOrDefaultAsync(m => m.Id == commentViewModel.BugReportId);
 
             if (bugReport == null)
             {
@@ -115,15 +105,20 @@ namespace BugBoard.Api.Controllers
 
             var canUseInternalComments = IsStaffUser();
 
-            commentViewModel.Comment = commentViewModel.Comment.Trim();
             if (string.IsNullOrWhiteSpace(commentViewModel.Comment))
             {
                 ModelState.AddModelError(nameof(commentViewModel.Comment), "Comment is required.");
             }
+            else
+            {
+                commentViewModel.Comment = commentViewModel.Comment.Trim();
+            }
 
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Details), new { id = commentViewModel.BugReportId });
+             
+                var viewModel = await BuildDetailsViewModelAsync(bugReport, commentViewModel);
+                return View("Details", viewModel);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -506,5 +501,24 @@ namespace BugBoard.Api.Controllers
 
         }
 
+        private async Task<BugReportDetailsViewModel> BuildDetailsViewModelAsync(BugReport bugReport, CreateBugReportCommentViewModel newComment)
+        {
+            var canUseInternalComments = IsStaffUser();
+            var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
+            var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
+            var attachments = await BuildAttachmentViewModelsAsync(bugReport.Id);
+            var viewModel = new BugReportDetailsViewModel
+            {
+                BugReport = bugReport,
+                Logs = bugReport.Logs,
+                Comments = comments,
+                ActivityItems = activityItems,
+                NewComment = newComment,
+                CanCreateInternalComment = canUseInternalComments,
+                Attachments = attachments
+            };
+
+            return viewModel;
+        }
     }
 }

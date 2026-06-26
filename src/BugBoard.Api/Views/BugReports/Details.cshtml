@@ -173,6 +173,7 @@
 
     <form class="bug-report-comment-form" asp-action="CreateComment" method="post">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
         <input type="hidden" name="BugReportId" value="@Model.NewComment.BugReportId" />
 
         <div class="bug-report-comment-input">
@@ -182,7 +183,7 @@
                       name="Comment"
                       rows="4"
                       maxlength="2000"
-                      placeholder="@Localizer["Write a comment..."]"></textarea>
+                      placeholder="@Localizer["Write a comment..."]">@Model.NewComment.Comment</textarea>
         </div>
 
         <div class="bug-report-comment-actions">
