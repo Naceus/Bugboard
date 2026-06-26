@@ -1,8 +1,8 @@
 # BugBoard
 
-BugBoard is a web-based bug tracking application built with ASP.NET Core MVC.
+BugBoard is a web-based ticket and bug tracking application built with ASP.NET Core MVC.
 
-It includes user authentication, role-based authorization, bug report management, activity logs, attachments, filtering, AJAX search, pagination and English/German UI localization.
+The project focuses on clean CRUD workflows, role-based authorization, ticket comments, protected file attachments, activity tracking and German/English UI localization.
 
 ---
 
@@ -94,7 +94,9 @@ Bugboard/
 │   └── BugBoard.Api/        # ASP.NET Core MVC application
 │       ├── Controllers/     # MVC controllers
 │       ├── Data/            # DbContext, migrations and seed logic
+|       ├── Exceptions/      # Custom application exceptions
 │       ├── Models/          # Domain and Identity models
+|       ├── Resources/       # Localization resources
 │       ├── Services/        # Application services
 │       ├── ViewModels/      # View-specific models
 │       ├── Views/           # Razor views
@@ -173,6 +175,8 @@ The admin password is not stored in `appsettings.json` and should not be committ
 
 ## Roles and Permissions
 
+- Create and view internal comments
+- 
 ### Admin
 
 Admins can:
@@ -197,8 +201,37 @@ Reporters can:
 - Create bug reports
 - View their own bug reports
 - View details for their own bug reports
+- Add public comments to their own tickets
+- View public comments and public activity
 
-Reporters cannot edit or delete bug reports.
+Reporters cannot:
+
+- View internal comments
+- Create internal comments
+- View tickets created by other users
+
+---
+
+## Attachments
+
+Tickets support file attachments.
+
+Validation includes:
+
+- Maximum file count
+- Maximum file size
+- Allowed file extensions
+- Allowed content types
+- File signature validation
+
+Supported file types:
+
+- PDF
+- PNG
+- JPG / JPEG
+- WEBP
+
+Attachments are stored outside the public `wwwroot` folder and are accessed through protected controller actions.
 
 ---
 
@@ -208,18 +241,24 @@ Reporters cannot edit or delete bug reports.
 - Role-based authorization with `Admin`, `Developer` and `Reporter`
 - Default role seeding on application startup
 - Optional initial admin user seeding via user secrets
-- Bug reports are linked to the user who created them
-- Reporters can only view their own bug reports
-- Admins and developers can view all bug reports
+- Ticket management with status, priority and assignee fields
+- Reporters can only view their own tickets
+- Admins and developers can view all tickets
 - Admin-only delete permission
 - Admin/developer edit permission
-- Bug report management with status, priority and assignee fields
-- Activity log for bug report changes
-- Bug report attachments with validation, protected viewing and cleanup
-- Search, filtering and pagination for bug reports
-- AJAX-based bug report search
-- English/German UI localization with a language switcher
-- Bootstrap-based responsive UI
+- Public and internal ticket comments
+- Reporters can only see public comments and public activity
+- Activity log for ticket changes
+- File attachments for tickets
+- Attachment validation by file count, file size, extension, content type and file signature
+- Supported attachment types: PDF, PNG, JPG/JPEG and WEBP
+- Protected inline attachment viewing
+- Attachment cleanup when tickets are deleted
+- Search, filtering and pagination for tickets
+- AJAX-based user search in the admin area
+- Admin area for user and role management
+- German/English UI localization with a language switcher
+- Responsive Bootstrap-based UI
 
 ---
 
@@ -245,6 +284,8 @@ Important tables:
 ```text
 BugReports
 BugReportLogs
+BugReportComments
+BugReportAttachments
 AspNetUsers
 AspNetRoles
 AspNetUserRoles
@@ -278,10 +319,16 @@ After setup, check the following cases:
 - Verify that admins and developers can see all bug reports.
 - Verify that only admins can delete bug reports.
 - Verify that admins and developers can edit bug reports.
+- Add public and internal comments to a ticket.
+- Verify that reporters cannot see internal comments.
+- Upload valid attachments.
+- Try uploading invalid file types.
+- Open attachments through the protected attachment view.
 - Switch between English and German and verify that the main UI labels update.
+- Manage user roles in the admin area.
 
 ---
 
 ## Project Status
 
-BugBoard is currently a learning and portfolio project focused on ASP.NET Core MVC, Identity, role-based authorization and clean CRUD workflows.
+BugBoard demonstrates practical ticket management workflows with ASP.NET Core MVC, Identity, role-based authorization and clean service-oriented application structure.
