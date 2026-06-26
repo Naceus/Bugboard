@@ -2,6 +2,7 @@
     string? currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
     string currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    string pageSubtitle = ViewData["Subtitle"]?.ToString() ?? "Track, prioritize and manage software issues efficiently.";
 }
 
 <!DOCTYPE html>
@@ -79,7 +80,7 @@
             <header class="app-header">
                 <div>
                     <h1>@Localizer[pageTitle]</h1>
-                    <p>@Localizer["Track, prioritize and manage software issues efficiently."]</p>
+                    <p>@Localizer[pageSubtitle]</p>
                 </div>
                 <form class="language-switcher" asp-controller="Localization" asp-action="SetLanguage" method="post">
                     @Html.AntiForgeryToken()
