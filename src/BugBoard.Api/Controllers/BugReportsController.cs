@@ -1,4 +1,5 @@
 ﻿using BugBoard.Api.Data;
+using BugBoard.Api.Exceptions;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.Services.BugReports;
@@ -156,11 +157,26 @@ namespace BugBoard.Api.Controllers
                 CreateAt = DateTime.UtcNow
             };
 
-            _context.Add(bugReport);
-            await _context.SaveChangesAsync();
-            await _bugReportAttachmentService.SaveAttachmentsAsync(bugReport.Id, viewModel.Attachments, bugReport.CreatedByUserId);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            return RedirectToAction(nameof(Details), new { id = bugReport.Id});
+            try
+            {
+                _context.Add(bugReport);
+                await _context.SaveChangesAsync();
+                await _bugReportAttachmentService.SaveAttachmentsAsync(bugReport.Id, viewModel.Attachments ?? new List<IFormFile>(), bugReport.CreatedByUserId);
+
+                await transaction.CommitAsync();
+
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+            }
+            catch (BugReportAttachmentValidationException ex)
+            {
+                await transaction.RollbackAsync();
+
+                ModelState.AddModelError(nameof(viewModel.Attachments), ex.Message);
+                return View(viewModel);
+            }
+
         }
 
         // GET: BugReports/Edit/5
@@ -256,6 +272,51 @@ namespace BugBoard.Api.Controllers
             return View(bugReport);
 
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAttachments (int id, AddAttachmentsToBugReportViewModel viewModel)
+        {
+            if (viewModel.BugReportId != id)
+            {
+                return BadRequest();
+            }
+
+            var bugReport = await _context.BugReports
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (bugReport == null)
+            {
+                return NotFound();
+            }
+            if (!CanViewBugReport(bugReport))
+            {
+                return Forbid();
+            }
+
+            if (viewModel.Attachments == null || !viewModel.Attachments.Any())
+            {
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+            }
+
+            try
+            {
+                await _bugReportAttachmentService.SaveAttachmentsAsync(
+                    bugReport.Id,
+                    viewModel.Attachments,
+                    _userManager.GetUserId(User));
+            }
+            catch (BugReportAttachmentValidationException ex)
+            {
+                TempData["AttachmentError"] = ex.Message;
+                return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+            }
+
+            TempData["AttachmentSuccess"] = "Attachments uploaded successfully.";
+            return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+
+        }
+
+
 
         // POST: BugReports/Delete/5
         [HttpPost, ActionName("Delete")]

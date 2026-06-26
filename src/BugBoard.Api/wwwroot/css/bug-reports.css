@@ -146,7 +146,13 @@
     gap: 0.75rem;
 }
 
-    .bug-report-attachments-header h2 {
+.bug-report-attachments-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+    .bug-report-attachments-title h2 {
         margin: 0;
         color: #0f172a;
         font-size: 1.25rem;
@@ -157,33 +163,128 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 2rem;
-    height: 2rem;
+    min-width: 1.75rem;
+    height: 1.75rem;
     border-radius: 999px;
     background: #e0f2fe;
     color: #075985;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 700;
 }
 
-.bug-report-attachments-list {
-    display: grid;
-    gap: 0.75rem;
+.bug-report-attachments-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0;
 }
 
-.bug-report-attachment-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    background: #ffffff;
+    .bug-report-attachments-toggle span {
+        display: block;
+        width: 1rem;
+        height: 2px;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: #475569;
+    }
+
+    .bug-report-attachments-toggle:hover,
+    .bug-report-attachments-toggle:focus {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+    }
+
+.bug-report-attachments-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+    .bug-report-attachments-list.is-collapsed {
+        display: none;
+    }
+
+.bug-report-attachment-upload-form {
+    display: grid;
+    gap: 0.75rem;
+    background: #f8fafc;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1rem;
 }
 
+.bug-report-attachment-upload-controls {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.bug-report-upload-button {
+    min-width: 6rem;
+}
+
+.bug-report-selected-attachments {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.bug-report-selected-attachment {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0.625rem 0.75rem;
+}
+
+.bug-report-selected-attachment-name {
+    min-width: 0;
+    color: #0f172a;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+.bug-report-selected-attachment-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #64748b;
+    font-weight: 700;
+    line-height: 1;
+}
+
+    .bug-report-selected-attachment-remove:hover,
+    .bug-report-selected-attachment-remove:focus {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+.bug-report-attachment-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+}
+
 .bug-report-attachment-main {
     display: grid;
-    gap: 0.2rem;
+    gap: 0.1rem;
     min-width: 0;
 }
 
@@ -194,6 +295,7 @@
 
 .bug-report-attachment-link {
     color: #0f172a;
+    font-size: 0.9375rem;
     font-weight: 700;
     overflow-wrap: anywhere;
     text-decoration: none;
@@ -208,9 +310,9 @@
 .bug-report-attachment-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.5rem;
     color: #475569;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 .bug-report-attachments-empty {
@@ -335,6 +437,11 @@
     .bug-report-attachment-meta {
         justify-content: flex-end;
         text-align: right;
+    }
+
+    .bug-report-attachment-upload-controls {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
     }
 
     .bug-report-filter-grid {

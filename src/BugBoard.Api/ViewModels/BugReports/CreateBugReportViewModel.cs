@@ -7,6 +7,6 @@ namespace BugBoard.Api.ViewModels.BugReports
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public BugPriority Priority { get; set; }
-        public List<IFormFile> Attachments { get; set; } = new();
+        public List<IFormFile>? Attachments { get; set; }
     }
 }

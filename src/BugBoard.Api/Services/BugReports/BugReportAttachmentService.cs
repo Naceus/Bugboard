@@ -1,4 +1,5 @@
 ﻿using BugBoard.Api.Data;
+using BugBoard.Api.Exceptions;
 using BugBoard.Api.Models.BugReports;
 using Microsoft.EntityFrameworkCore;
 
@@ -183,7 +184,7 @@ namespace BugBoard.Api.Services.BugReports
         {
             if (files.Count > MaxFiles)
             {
-                throw new InvalidOperationException("A maximum of 5 attachments is allowed.");
+                throw new BugReportAttachmentValidationException("A maximum of 5 attachments is allowed.");
             }
 
 
@@ -191,28 +192,28 @@ namespace BugBoard.Api.Services.BugReports
             {
                 if (file.Length == 0)
                 {
-                    throw new InvalidOperationException($"The file '{file.FileName}' is empty.");
+                    throw new BugReportAttachmentValidationException($"The file '{file.FileName}' is empty.");
                 }
                 if (file.Length > MaxFileSizeInBytes)
                 {
-                    throw new InvalidOperationException($"The file '{file.FileName}' exceeds the maximum size of 5 MB.");
+                    throw new BugReportAttachmentValidationException($"The file '{file.FileName}' exceeds the maximum size of 5 MB.");
                 }
 
                 var extension = Path.GetExtension(file.FileName);
 
                 if (!AllowedExtensions.Contains(extension))
                 {
-                    throw new InvalidOperationException($"The file '{file.FileName}' has an unsupported file extension.");
+                    throw new BugReportAttachmentValidationException($"The file '{file.FileName}' has an unsupported file extension.");
                 }
 
                 if (!AllowedContentTypes.Contains(file.ContentType))
                 {
-                    throw new InvalidOperationException($"The file '{file.FileName}' has an unsupported content type.");
+                    throw new BugReportAttachmentValidationException($"The file '{file.FileName}' has an unsupported content type.");
                 }
 
                 if (!await IsValidFileSignature(file, extension))
                 {
-                    throw new InvalidOperationException($"{file.FileName} does not match the expected file format.");
+                    throw new BugReportAttachmentValidationException($"{file.FileName} does not match the expected file format.");
                 }
             }
         }

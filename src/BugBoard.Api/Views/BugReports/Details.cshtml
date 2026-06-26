@@ -86,10 +86,35 @@
 <hr />
 <section class="bug-report-attachments">
     <div class="bug-report-attachments-header">
-        <h2>Attachments</h2>
-        <span class="bug-report-attachments-count">@Model.Attachments.Count</span>
+        <div class="bug-report-attachments-title">
+            <h2>Attachments</h2>
+            <span class="bug-report-attachments-count">@Model.Attachments.Count</span>
+        </div>
+        @if (Model.Attachments.Any())
+        {
+            <button class="bug-report-attachments-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="bug-report-attachments-list"
+                    data-attachments-toggle="#bug-report-attachments-list">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        }
     </div>
-
+    @if (TempData["AttachmentSuccess"] is string attachmentSuccess)
+    {
+        <div class="alert alert-success">
+            @attachmentSuccess
+        </div>
+    }
+    else if (TempData["AttachmentError"] is string attachmentError)
+    {
+        <div class="alert alert-danger">
+            @attachmentError
+        </div>
+    }
     @if (!Model.Attachments.Any())
     {
         <div class="bug-report-attachments-empty">
@@ -98,7 +123,7 @@
     }
     else
     {
-        <div class="bug-report-attachments-list">
+        <div id="bug-report-attachments-list" class="bug-report-attachments-list is-collapsed">
             @foreach (var attachment in Model.Attachments)
             {
                 <article class="bug-report-attachment-item">
@@ -110,7 +135,6 @@
                            class="bug-report-attachment-link">
                             @attachment.OriginalFileName
                         </a>
-                        <span>@attachment.ContentType</span>
                     </div>
                     <div class="bug-report-attachment-meta">
                         <span>@FormatFileSize(attachment.FileSize)</span>
@@ -120,6 +144,25 @@
             }
         </div>
     }
+
+    <form class="bug-report-attachment-upload-form"
+          asp-action="AddAttachments"
+          asp-route-id="@Model.BugReport.Id"
+          method="post"
+          enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="BugReportId" value="@Model.BugReport.Id" />
+        <div class="bug-report-attachment-upload-controls">
+            <input class="form-control js-attachment-input"
+                   type="file"
+                   name="Attachments"
+                   multiple
+                   accept=".pdf,.png,.jpg,.jpeg,.webp"
+                   data-selected-list="#details-selected-attachments" />
+            <button class="btn btn-primary bug-report-upload-button" type="submit">Upload</button>
+        </div>
+        <div id="details-selected-attachments" class="bug-report-selected-attachments"></div>
+    </form>
 </section>
 
 <hr />
@@ -216,6 +259,10 @@
 
         return $"{fileSize} bytes";
     }
+}
+
+@section Scripts {
+    <script src="~/js/bug-report-attachments.js" asp-append-version="true"></script>
 }
 
 
