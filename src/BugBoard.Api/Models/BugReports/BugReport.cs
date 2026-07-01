@@ -14,7 +14,10 @@ public class BugReport
 
     public BugStatus Status { get; set; } = BugStatus.Open;
     public BugPriority Priority { get; set; } = BugPriority.Low;
-    public string? AssignedTo { get; set; }
+    public string? AssignedToId { get; set; }
+    public ApplicationUser? AssignedToUser { get; set; }
+    public string? SupervisorId { get; set; }
+    public ApplicationUser? Supervisor {  get; set; }
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public string? CreatedByUserId { get; set; }

@@ -29,7 +29,7 @@ else
                 <dl class="bug-report-card-meta">
                     <div>
                         <dt>@Localizer["Assigned to"]</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)</dd>
+                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedToId) ? Localizer["Unassigned"] : item.AssignedToId)</dd>
                     </div>
 
                     <div>
@@ -93,7 +93,7 @@ else
 
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
-                                @(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)
+                                @(string.IsNullOrWhiteSpace(item.AssignedToId) ? Localizer["Unassigned"] : item.AssignedToId)
                             </a>
                         </td>
 

@@ -200,7 +200,7 @@ namespace BugBoard.Api.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = ApplicationRoles.AdminDeveloper)]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedTo")] BugReport bugReport)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedToId")] BugReport bugReport)
         {
             if (id != bugReport.Id)
             {
@@ -224,7 +224,7 @@ namespace BugBoard.Api.Controllers
             var changes = _bugReportChangeService.GetChanges(oldBugReport, bugReport);
             foreach (var change in changes)
             {
-                AddChangeLog(bugReport.Id, change, bugReport.AssignedTo);
+                AddChangeLog(bugReport.Id, change, bugReport.AssignedToId);
             }
 
             bugReport.CreateAt = oldBugReport.CreateAt;
@@ -354,14 +354,14 @@ namespace BugBoard.Api.Controllers
         /// </summary>
         /// <param name="bugReportId">The id for the bug report that was changed.</param>
         /// <param name="change">The detected field change that should be logged.</param>
-        /// <param name="assignedTo">The user or developer currently assigned to the bug report.</param>
-        private void AddChangeLog(int bugReportId, BugReportChange change, string? assignedTo)
+        /// <param name="assignedToId">The user or developer currently assigned to the bug report.</param>
+        private void AddChangeLog(int bugReportId, BugReportChange change, string? assignedToId)
         {
             BugReportLog log = new()
             {
                 BugReportId = bugReportId,
                 Message = $"{change.FieldName} changed from {change.OldValue} to {change.NewValue}",
-                AssignedTo = assignedTo,
+                AssignedToId = assignedToId,
                 CreatedAt = DateTime.UtcNow,
             };
             _context.BugReportLogs.Add(log);

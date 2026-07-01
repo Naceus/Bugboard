@@ -1,4 +1,6 @@
-﻿namespace BugBoard.Api.Models.BugReports
+﻿using BugBoard.Api.Models.Account;
+
+namespace BugBoard.Api.Models.BugReports
 {
     public class BugReportLog
     {
@@ -7,6 +9,7 @@
         public BugReport BugReport { get; set; } = null!;
         public string? Message { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public string? AssignedTo {  get; set; }
+        public string? AssignedToId {  get; set; }
+        public ApplicationUser? AssignedToUser { get; set; }
     }
 }

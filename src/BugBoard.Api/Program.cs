@@ -46,6 +46,8 @@ internal class Program
 
         using(var scope = app.Services.CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<BugBoardDbContext>();
+            context.Database.Migrate();
             var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
             seeder.SeedAsync().GetAwaiter().GetResult();
         }
