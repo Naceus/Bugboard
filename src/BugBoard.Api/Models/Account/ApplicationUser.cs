@@ -7,5 +7,7 @@ namespace BugBoard.Api.Models.Account
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
 
+        public string FullName { get => $"{this.FirstName} {this.LastName}".Trim(); }
+
     }
 }

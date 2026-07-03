@@ -7,6 +7,7 @@ using BugBoard.Api.ViewModels.BugReports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Net.Mime;
@@ -62,6 +63,8 @@ namespace BugBoard.Api.Controllers
             var bugReport = await _context.BugReports
                 .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
                 .Include(b => b.CreatedByUser)
+                .Include(b => b.AssignedToUser)
+                .Include(b => b.Supervisor)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (bugReport == null)
@@ -91,6 +94,8 @@ namespace BugBoard.Api.Controllers
             var bugReport = await _context.BugReports
                                   .Include(b => b.Logs.OrderByDescending(l => l.CreatedAt))
                                   .Include(b => b.CreatedByUser)
+                                  .Include(b => b.AssignedToUser)
+                                  .Include(b => b.Supervisor)
                                   .FirstOrDefaultAsync(m => m.Id == commentViewModel.BugReportId);
 
             if (bugReport == null)
@@ -192,6 +197,12 @@ namespace BugBoard.Api.Controllers
             {
                 return NotFound();
             }
+            var userList = await _userManager.Users.ToListAsync();
+
+            SelectList items = new SelectList(userList, "Id", "FullName");
+
+            ViewBag.Users = items;
+            
             return View(bugReport);
         }
 
@@ -200,7 +211,7 @@ namespace BugBoard.Api.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = ApplicationRoles.AdminDeveloper)]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,AssignedToId")] BugReport bugReport)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,Priority,SupervisorId,AssignedToId")] BugReport bugReport)
         {
             if (id != bugReport.Id)
             {

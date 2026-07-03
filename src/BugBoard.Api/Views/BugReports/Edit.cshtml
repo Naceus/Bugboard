@@ -37,8 +37,13 @@
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AssignedToId" class="control-label">@Localizer["AssignedToId"]</label>
-                <input asp-for="AssignedToId" class="form-control" />
+                <label asp-for="SupervisorId" class="control-label">@Localizer["Supervisor"]</label>
+                <select asp-for="SupervisorId" asp-items="ViewBag.Users" class="form-control"></select>
+                <span asp-validation-for="SupervisorId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AssignedToId" class="control-label">@Localizer["Assigned To"]</label>
+                <select asp-for="AssignedToId" asp-items="ViewBag.Users" class="form-control"></select>
                 <span asp-validation-for="AssignedToId" class="text-danger"></span>
             </div>
             <div class="form-group mt-3">

@@ -63,11 +63,17 @@
          <partial name="_PriorityBadge" model="Model.BugReport.Priority"/>
             
         </dd>
+        <dt class="col-sm-2">
+            @Localizer["Supervisor"]
+        </dt>
+        <dd class="col-sm-10">
+            @(string.IsNullOrWhiteSpace(Model.BugReport.Supervisor?.FullName) ? Localizer["Unassigned"] : Model.BugReport.Supervisor?.FullName)
+        </dd>
         <dt class = "col-sm-2">
-            @Localizer["AssignedToId"]
+            @Localizer["AssignedTo"]
         </dt>
         <dd class = "col-sm-10">
-        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedToId) ? Localizer["Unassigned"] : Model.BugReport.AssignedToId)
+            @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedToUser?.FullName) ? Localizer["Unassigned"] : Model.BugReport.AssignedToUser?.FullName)
         </dd>
         <dt class = "col-sm-2">
             @Localizer["CreateAt"]
