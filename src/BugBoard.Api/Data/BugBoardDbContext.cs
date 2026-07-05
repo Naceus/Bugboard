@@ -15,6 +15,7 @@ public class BugBoardDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BugReportLog> BugReportLogs => Set<BugReportLog>();
     public DbSet<BugReportComment> BugReportComments => Set<BugReportComment>();
     public DbSet<BugReportAttachment> BugReportAttachments => Set<BugReportAttachment>();
+    public DbSet<BugReportSubscription> BugReportSubscriptions => Set<BugReportSubscription>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -33,5 +34,9 @@ public class BugBoardDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(s => s.Supervisor)
             .WithMany()
             .HasForeignKey(s =>  s.SupervisorId);
+        builder.Entity<BugReportSubscription>()
+            .HasIndex(s => new { s.BugReportId, s.UserId })
+            .IsUnique();
+        
     }
 }
