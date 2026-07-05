@@ -34,6 +34,8 @@ internal class Program
         builder.Services
             .AddScoped<INotificationRecipientService, NotificationRecipientService>();
         builder.Services
+            .AddHttpClient<INotificationService, NotificationService>();
+        builder.Services
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login
         builder.Services

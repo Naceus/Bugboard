@@ -2,7 +2,9 @@
 using BugBoard.Api.Exceptions;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Models.BugReports;
+using BugBoard.Api.Models.Notifications;
 using BugBoard.Api.Services.BugReports;
+using BugBoard.Api.Services.Notifications;
 using BugBoard.Api.ViewModels.BugReports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,10 +20,12 @@ namespace BugBoard.Api.Controllers
     public class BugReportsController : BaseController
     {
         private readonly BugBoardDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly BugReportChangeService _bugReportChangeService;
         private readonly IBugReportCommentService _bugReportCommentService;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IBugReportAttachmentService _bugReportAttachmentService;
+        private readonly INotificationService _notificationService;
+        private readonly INotificationRecipientService _notificationRecipientService;
         private readonly IWebHostEnvironment _environment;
         private readonly IStringLocalizer<SharedResource> _localizer;
         public BugReportsController(
@@ -29,6 +33,8 @@ namespace BugBoard.Api.Controllers
             BugReportChangeService bugReportChangeService,
             IBugReportCommentService bugReportCommentService,
             IBugReportAttachmentService bugReportAttachmentService,
+            INotificationService notificationService,
+            INotificationRecipientService notificationRecipientService,
             IWebHostEnvironment environment,
             IStringLocalizer<SharedResource> localizer,
             UserManager<ApplicationUser> userManager)
@@ -37,6 +43,8 @@ namespace BugBoard.Api.Controllers
             _bugReportChangeService = bugReportChangeService;
             _bugReportCommentService = bugReportCommentService;
             _bugReportAttachmentService = bugReportAttachmentService;
+            _notificationService = notificationService;
+            _notificationRecipientService = notificationRecipientService;
             _environment = environment;
             _localizer = localizer;
             _userManager = userManager;
@@ -132,6 +140,23 @@ namespace BugBoard.Api.Controllers
                 User.Identity?.Name,
                 canUseInternalComments);
 
+            var recipients = await _notificationRecipientService.GetCommentRecipientsAsync(bugReport.Id, commentViewModel.CommentVisibility == CommentVisibility.Internal);
+
+            if (recipients.Any())
+            {
+                var payload = new BugReportNotificationPayload()
+                {
+                    BugReportTitle = bugReport.Title,
+                    BugReportId = bugReport.Id,
+                    Comment = commentViewModel.Comment,
+                    Priority = bugReport.Priority.ToString(),
+                    ReporterName = bugReport.CreatedByUser?.FullName ?? string.Empty,
+                    EventType = "Comment",
+                };
+                
+                await SendBugReportNotificationsAsync(recipients, payload);
+
+            }
             return RedirectToAction(nameof(Details), new { id = bugReport.Id });
         }
 
@@ -225,6 +250,7 @@ namespace BugBoard.Api.Controllers
 
             var oldBugReport = await _context.BugReports
                 .AsNoTracking()
+                .Include(b => b.CreatedByUser)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (oldBugReport == null)
@@ -241,11 +267,33 @@ namespace BugBoard.Api.Controllers
             bugReport.CreateAt = oldBugReport.CreateAt;
             bugReport.CreatedByUserId = oldBugReport.CreatedByUserId;
             bugReport.UpdatedAt = changes.Any() ? DateTime.UtcNow: oldBugReport.UpdatedAt;
+            
 
             try
             {
                 _context.Update(bugReport);
                 await _context.SaveChangesAsync();
+                if(changes.Any(c => c.FieldName == "Status"))
+                {
+                    var recipients = await _notificationRecipientService.GetStatusChangeRecipientsAsync(bugReport.Id);
+
+                    if (recipients.Any())
+                    {
+                        var payload = new BugReportNotificationPayload();
+                        payload.BugReportId = bugReport.Id;
+                        payload.BugReportTitle = bugReport.Title;
+                        payload.EventType = "StatusChange";
+                        payload.OldStatus = oldBugReport.Status.ToString();
+                        payload.NewStatus = bugReport.Status.ToString();
+                        payload.Priority = bugReport.Priority.ToString();
+                        payload.ReporterName = oldBugReport.CreatedByUser?.FullName ?? string.Empty;
+
+                        await SendBugReportNotificationsAsync(recipients, payload);
+                    }
+
+
+
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -260,6 +308,20 @@ namespace BugBoard.Api.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = bugReport.Id });
+
+        }
+
+        private async Task SendBugReportNotificationsAsync(List<ApplicationUser> recipients, BugReportNotificationPayload payload)
+        {
+            foreach (var recipient in recipients)
+            {
+                if (recipient.Email != null)
+                {
+                    payload.RecipientEmail = recipient.Email;
+                    await _notificationService.SendNotificationAsync(payload);
+                }
+
+            }
 
         }
 
