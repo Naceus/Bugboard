@@ -379,6 +379,34 @@ namespace BugBoard.Api.Controllers
             _context.BugReportLogs.Add(log);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SaveSubscription(int bugReportId, bool notifyOnStatusChange, bool notifyOnComment)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var model = await _context.BugReportSubscriptions
+                .FirstOrDefaultAsync(e => e.BugReportId == bugReportId && e.UserId == userId);
+
+            if (model == null)
+            { 
+                BugReportSubscription subscription = new BugReportSubscription();
+                subscription.UserId = userId;
+                subscription.BugReportId = bugReportId;
+                subscription.NotifyOnComment = notifyOnComment;
+                subscription.NotifyOnStatusChange = notifyOnStatusChange;
+                _context.BugReportSubscriptions.Add(subscription);
+            }
+            else
+            {
+                model.NotifyOnComment = notifyOnComment;
+                model.NotifyOnStatusChange = notifyOnStatusChange;
+            }
+
+            await _context.SaveChangesAsync();
+            
+            return RedirectToAction("Details", new { id = bugReportId });
+        }
+
         /// <summary>
         /// Builds the view model for bug report index page.
         /// Applies search, filters, sorting and pagination.
@@ -518,6 +546,11 @@ namespace BugBoard.Api.Controllers
             var comments = await _bugReportCommentService.GetVisibleCommentsAsync(bugReport.Id, canUseInternalComments);
             var activityItems = _bugReportCommentService.BuildActivityItems(comments, bugReport.Logs);
             var attachments = await BuildAttachmentViewModelsAsync(bugReport.Id);
+
+            var userId = _userManager.GetUserId(User);
+            var subscription = await _context.BugReportSubscriptions
+                                .FirstOrDefaultAsync(s =>  s.BugReportId == bugReport.Id && s.UserId == userId);
+
             var viewModel = new BugReportDetailsViewModel
             {
                 BugReport = bugReport,
@@ -526,7 +559,9 @@ namespace BugBoard.Api.Controllers
                 ActivityItems = activityItems,
                 NewComment = newComment,
                 CanCreateInternalComment = canUseInternalComments,
-                Attachments = attachments
+                Attachments = attachments,
+                Subscription = subscription
+
             };
 
             return viewModel;
