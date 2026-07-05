@@ -211,7 +211,7 @@ namespace BugBoard.Api.Migrations
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 

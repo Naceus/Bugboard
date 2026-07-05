@@ -15,7 +15,7 @@ using System.Net.Mime;
 namespace BugBoard.Api.Controllers
 {
     [Authorize]
-    public class BugReportsController : Controller
+    public class BugReportsController : BaseController
     {
         private readonly BugBoardDbContext _context;
         private readonly BugReportChangeService _bugReportChangeService;
@@ -50,7 +50,6 @@ namespace BugBoard.Api.Controllers
 
             return View(viewModel);
         }
-
         // GET: BugReports/Details/5
 
         public async Task<IActionResult> Details(int? id)
@@ -197,9 +196,10 @@ namespace BugBoard.Api.Controllers
             {
                 return NotFound();
             }
-            var userList = await _userManager.Users.ToListAsync();
-
-            SelectList items = new SelectList(userList, "Id", "FullName");
+            var developer = await _userManager.GetUsersInRoleAsync("Developer");
+            var admin = await _userManager.GetUsersInRoleAsync("Admin");
+            var staffList = admin.Concat(developer).DistinctBy(u => u.Id).ToList();
+            SelectList items = new SelectList(staffList, "Id", "FullName");
 
             ViewBag.Users = items;
             
@@ -239,6 +239,7 @@ namespace BugBoard.Api.Controllers
             }
 
             bugReport.CreateAt = oldBugReport.CreateAt;
+            bugReport.CreatedByUserId = oldBugReport.CreatedByUserId;
             bugReport.UpdatedAt = changes.Any() ? DateTime.UtcNow: oldBugReport.UpdatedAt;
 
             try
@@ -392,13 +393,16 @@ namespace BugBoard.Api.Controllers
             const int pageSize = 10;
             page = Math.Max(page, 1);
 
-            IQueryable<BugReport> bugReports = _context.BugReports;
+            IQueryable<BugReport> bugReports = _context.BugReports
+                    .Include(b => b.CreatedByUser)
+                    .Include(b => b.AssignedToUser)
+                    .Include(b => b.Supervisor);
 
             var canViewAllReports = IsStaffUser();
             if (!canViewAllReports)
             {
                 var currentUserId = _userManager.GetUserId(User);
-                bugReports = bugReports.Where(b => b.CreatedByUserId == currentUserId);
+                bugReports = bugReports.Where(b => b.CreatedByUserId == currentUserId || b.AssignedToId == currentUserId);
             }
 
             if (!string.IsNullOrWhiteSpace(title))
@@ -447,11 +451,7 @@ namespace BugBoard.Api.Controllers
             return canViewAllReports || isOwner;                
 
         }
-        private bool IsStaffUser()
-        {
-            return User.IsInRole(ApplicationRoles.Admin) || User.IsInRole(ApplicationRoles.Developer);
-        }
-
+  
         private async Task<List<BugReportAttachmentViewModel>> BuildAttachmentViewModelsAsync(int bugReportId)
         {
           return await _context.BugReportAttachments

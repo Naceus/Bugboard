@@ -4,7 +4,7 @@ namespace BugBoard.Api.Models.BugReports
 {
     public class BugReportLog
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public int BugReportId { get; set; }
         public BugReport BugReport { get; set; } = null!;
         public string? Message { get; set; }

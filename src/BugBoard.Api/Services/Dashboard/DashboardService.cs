@@ -2,16 +2,19 @@
 using BugBoard.Api.Models.BugReports;
 using BugBoard.Api.ViewModels.Dashboard;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace BugBoard.Api.Services.Dashboard
 {
     public class DashboardService : IDashboardService
     {
         private readonly BugBoardDbContext _context;
-        public DashboardService(BugBoardDbContext context ) {
+        private readonly IStringLocalizer<SharedResource> _localizer;
+        public DashboardService(BugBoardDbContext context, IStringLocalizer<SharedResource> localizer) {
             _context = context;
+            _localizer = localizer;
         }
-        public async Task<DashboardViewModel> GetReporterDashboardAsync(string userId)
+        public async Task<DashboardViewModel> GetDashboardAsync(string userId, bool isStaff)
         {
             var viewModel = new DashboardViewModel();
 
@@ -21,24 +24,15 @@ namespace BugBoard.Api.Services.Dashboard
 
             var bugReports = _context.BugReports
                 .AsNoTracking()
-                .Where(b => b.CreatedByUserId == userId);
+                .Where(b => b.CreatedByUserId == userId || b.AssignedToId == userId);
 
+            int unassignedCount = await _context.BugReports.CountAsync(b => b.AssignedToId == null);
             int openCount = await bugReports.CountAsync(b => b.Status == BugStatus.Open);
             int inProgressCount = await bugReports.CountAsync(b => b.Status == BugStatus.InProgress);
             int closedCount = await bugReports.CountAsync(b => b.Status == BugStatus.Closed);
+           
 
-
-
-            var openMetric = CreateMetric("Open Reports", openCount, "Reports waiting for review","!","warning");            
-            var inProgressMetric = CreateMetric("In Progress", inProgressCount, "Reports currently being worked on", "↻", "primary");
-            var closedMetric = CreateMetric("Closed", closedCount, "Reports completed", "✓", "success");
-
-            viewModel.Metrics = new List<DashboardMetricViewModel>
-            {
-                openMetric,
-                inProgressMetric,
-                closedMetric
-            };
+            viewModel.Metrics = BuildMetrics(unassignedCount, openCount, inProgressCount, closedCount, isStaff);
 
             var recentBugReports = await bugReports
                 .OrderByDescending(b => b.UpdatedAt ?? b.CreateAt)
@@ -76,5 +70,39 @@ namespace BugBoard.Api.Services.Dashboard
 
             return recentReportViewModel;
         }
+
+        private List<DashboardMetricViewModel> BuildMetrics(int unassignedCount,int openCount, int inProgressCount, int closedCount, bool isStaff)
+        {
+
+            var unassignedMetric = CreateMetric(_localizer["Unassigned Reports"], unassignedCount, _localizer["Reports waiting to be assigned"], "?", "danger");
+            var openMetric = CreateMetric(_localizer["Open Reports"], openCount, _localizer["Reports waiting for review"], "!", "warning");
+            var inProgressMetric = CreateMetric(_localizer["In Progress"], inProgressCount, _localizer["Reports currently being worked on"], "↻", "primary");
+            var closedMetric = CreateMetric(_localizer["Closed"], closedCount, _localizer["Reports completed"], "✓", "success");
+
+          
+         
+            if (isStaff)
+            {
+                return new List<DashboardMetricViewModel>
+                {
+                    unassignedMetric,
+                    openMetric,
+                    inProgressMetric,
+                    closedMetric
+                };
+            }
+            else
+            {
+                return new List<DashboardMetricViewModel>
+                {
+                    openMetric,
+                    inProgressMetric,
+                    closedMetric
+                };
+
+            }
+
+        }
+
     }
 }
