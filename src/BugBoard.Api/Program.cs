@@ -3,6 +3,7 @@ using BugBoard.Api.Data.Seed;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.Services.Dashboard;
+using BugBoard.Api.Services.Notifications;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,8 @@ internal class Program
             .AddScoped<IBugReportAttachmentService, BugReportAttachmentService>();
         builder.Services
             .AddScoped<IDashboardService, DashboardService>();
+        builder.Services
+            .AddScoped<INotificationRecipientService, NotificationRecipientService>();
         builder.Services
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login
