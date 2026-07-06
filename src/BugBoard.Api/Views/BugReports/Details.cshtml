@@ -11,6 +11,20 @@
 }
 
 <div>
+    <div id="subscription-panel" class="d-flex gap-3 justify-content-end">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="bugReportId" value="@Model.BugReport.Id"/>
+        <div class="form-check">
+            <input type="checkbox" id="notify-status" class="form-check-input" name="notifyOnStatusChange" value="true"
+                @(Model.Subscription?.NotifyOnStatusChange == true ? "checked" : "")/>
+            <label class="form-check-label">@Localizer["Notify on status change"]</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" id="notify-comment" class="form-check-input" name="notifyOnComment" value="true"
+                @(Model.Subscription?.NotifyOnComment == true ? "checked" : "")/>
+            <label class="form-check-label">@Localizer["Notify on comment"]</label>
+        </div>
+    </div>
     <hr />
     <div class="mb-3">
         <div class="d-flex gap-2 align-items-center w-100">
@@ -24,6 +38,7 @@
             {
                 <form asp-action="Delete" asp-route-id="@Model.BugReport.Id" method="post"
                     onsubmit="return confirm('@Localizer["Are you sure want to delete this bug report?"]');" class="ms-auto">
+                    @Html.AntiForgeryToken()
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">@Localizer["Delete"]</button>
                 </form>                
@@ -63,11 +78,17 @@
          <partial name="_PriorityBadge" model="Model.BugReport.Priority"/>
             
         </dd>
+        <dt class="col-sm-2">
+            @Localizer["Supervisor"]
+        </dt>
+        <dd class="col-sm-10">
+            @(string.IsNullOrWhiteSpace(Model.BugReport.Supervisor?.FullName) ? Localizer["Unassigned"] : Model.BugReport.Supervisor?.FullName)
+        </dd>
         <dt class = "col-sm-2">
             @Localizer["AssignedTo"]
         </dt>
         <dd class = "col-sm-10">
-        @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedTo) ? Localizer["Unassigned"] : Model.BugReport.AssignedTo)
+            @(string.IsNullOrWhiteSpace(Model.BugReport.AssignedToUser?.FullName) ? Localizer["Unassigned"] : Model.BugReport.AssignedToUser?.FullName)
         </dd>
         <dt class = "col-sm-2">
             @Localizer["CreateAt"]
@@ -262,8 +283,20 @@
     }
 }
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="subscription-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                @Localizer["Subscription saved."]
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/bug-report-attachments.js" asp-append-version="true"></script>
+    <script src="~/js/bug-report-details.js" asp-append-version="true"></script>
 }
 
 

@@ -12,7 +12,7 @@ namespace BugBoard.Api.Services.BugReports
                 new("Description", oldBugReport.Description, newBugReport.Description),
                 new("Status", oldBugReport.Status.ToString(), newBugReport.Status.ToString()),
                 new("Priority", oldBugReport.Priority.ToString(), newBugReport.Priority.ToString()),
-                new("AssignedTo", oldBugReport.AssignedTo, newBugReport.AssignedTo),
+                new("AssignedToId", oldBugReport.AssignedToId, newBugReport.AssignedToId),
             };
             return changes
                 .Where(change => change.OldValue != change.NewValue)

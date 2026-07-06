@@ -1,39 +1,36 @@
-using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace BugBoard.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBugReportComment : Migration
+    public partial class AddBugReportSubscription : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "BugReportComments",
+                name: "BugReportSubscriptions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Comment = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedByUserId = table.Column<string>(type: "TEXT", nullable: true),
-                    CreatedByName = table.Column<string>(type: "TEXT", nullable: false),
                     BugReportId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CommentVisibility = table.Column<int>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: true),
+                    NotifyOnStatusChange = table.Column<bool>(type: "INTEGER", nullable: false),
+                    NotifyOnComment = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BugReportComments", x => x.Id);
+                    table.PrimaryKey("PK_BugReportSubscriptions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BugReportComments_AspNetUsers_CreatedByUserId",
-                        column: x => x.CreatedByUserId,
+                        name: "FK_BugReportSubscriptions_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_BugReportComments_BugReports_BugReportId",
+                        name: "FK_BugReportSubscriptions_BugReports_BugReportId",
                         column: x => x.BugReportId,
                         principalTable: "BugReports",
                         principalColumn: "Id",
@@ -41,21 +38,22 @@ namespace BugBoard.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BugReportComments_BugReportId",
-                table: "BugReportComments",
-                column: "BugReportId");
+                name: "IX_BugReportSubscriptions_BugReportId_UserId",
+                table: "BugReportSubscriptions",
+                columns: new[] { "BugReportId", "UserId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_BugReportComments_CreatedByUserId",
-                table: "BugReportComments",
-                column: "CreatedByUserId");
+                name: "IX_BugReportSubscriptions_UserId",
+                table: "BugReportSubscriptions",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BugReportComments");
+                name: "BugReportSubscriptions");
         }
     }
 }

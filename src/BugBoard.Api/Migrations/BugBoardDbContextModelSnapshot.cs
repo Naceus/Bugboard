@@ -95,7 +95,7 @@ namespace BugBoard.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("AssignedTo")
+                    b.Property<string>("AssignedToId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateAt")
@@ -114,6 +114,9 @@ namespace BugBoard.Api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("SupervisorId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -123,7 +126,11 @@ namespace BugBoard.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToId");
+
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("BugReports");
                 });
@@ -204,11 +211,11 @@ namespace BugBoard.Api.Migrations
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("AssignedTo")
+                    b.Property<string>("AssignedToId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("BugReportId")
@@ -222,9 +229,39 @@ namespace BugBoard.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToId");
+
                     b.HasIndex("BugReportId");
 
                     b.ToTable("BugReportLogs");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BugReportId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyOnComment")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyOnStatusChange")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BugReportId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("BugReportSubscriptions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -357,11 +394,23 @@ namespace BugBoard.Api.Migrations
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReport", b =>
                 {
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
                     b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId");
 
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId");
+
+                    b.Navigation("AssignedToUser");
+
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportAttachment", b =>
@@ -400,13 +449,36 @@ namespace BugBoard.Api.Migrations
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
                     b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
                         .WithMany("Logs")
                         .HasForeignKey("BugReportId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AssignedToUser");
+
                     b.Navigation("BugReport");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportSubscription", b =>
+                {
+                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
+                        .WithMany()
+                        .HasForeignKey("BugReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("BugReport");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

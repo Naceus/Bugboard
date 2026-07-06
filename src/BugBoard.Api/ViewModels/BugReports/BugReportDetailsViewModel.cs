@@ -11,5 +11,6 @@ namespace BugBoard.Api.ViewModels.BugReports
         public CreateBugReportCommentViewModel NewComment { get; set; } = new();
         public bool CanCreateInternalComment { get; set; }
         public List<BugReportAttachmentViewModel> Attachments { get; set; } = new();
+        public BugReportSubscription? Subscription { get; set; }
     }
 }

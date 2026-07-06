@@ -390,4 +390,16 @@
   <data name="Create a bug report." xml:space="preserve">
     <value>Ein Ticket erstellen.</value>
   </data>
+  <data name="Unassigned Reports" xml:space="preserve">
+    <value>Nicht zugewiesene Tickets</value>
+  </data>
+  <data name="Reports waiting to be assigned" xml:space="preserve">
+    <value>Tickets die noch zugewiesen werden müssen</value>
+  </data>
+  <data name="Notify on status change" xml:space="preserve">
+    <value>Statusänderungen benachrichtigen</value>
+  </data>
+  <data name="Notify on comment" xml:space="preserve">
+    <value>Kommentare benachrichtigen</value>
+  </data>
 </root>

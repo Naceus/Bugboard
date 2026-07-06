@@ -3,6 +3,7 @@ using BugBoard.Api.Data.Seed;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.Services.Dashboard;
+using BugBoard.Api.Services.Notifications;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,10 @@ internal class Program
         builder.Services
             .AddScoped<IDashboardService, DashboardService>();
         builder.Services
+            .AddScoped<INotificationRecipientService, NotificationRecipientService>();
+        builder.Services
+            .AddHttpClient<INotificationService, NotificationService>();
+        builder.Services
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login
         builder.Services
@@ -46,6 +51,8 @@ internal class Program
 
         using(var scope = app.Services.CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<BugBoardDbContext>();
+            context.Database.Migrate();
             var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
             seeder.SeedAsync().GetAwaiter().GetResult();
         }

@@ -28,8 +28,8 @@ else
 
                 <dl class="bug-report-card-meta">
                     <div>
-                        <dt>@Localizer["Assigned to"]</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)</dd>
+                        <dt>@Localizer["Assigned To"]</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(item.AssignedToUser?.FullName) ? Localizer["Unassigned"] : item.AssignedToUser?.FullName)</dd>
                     </div>
 
                     <div>
@@ -54,7 +54,8 @@ else
                     <th>@Localizer["Description"]</th>
                     <th>@Localizer["Status"]</th>
                     <th>@Localizer["Priority"]</th>
-                    <th>@Localizer["Assigned to"]</th>
+                    <th>@Localizer["Supervisor"]</th>
+                    <th>@Localizer["Assigned To"]</th>
                     <th>@Localizer["Created At"]</th>
                     <th>@Localizer["Updated At"]</th>
                 </tr>
@@ -90,10 +91,15 @@ else
                                 <partial name="_PriorityBadge" model="item.Priority" />
                             </a>
                         </td>
+                        <td>
+                            <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
+                                @(string.IsNullOrWhiteSpace(item.Supervisor?.FullName) ? Localizer["Unassigned"] : item.Supervisor?.FullName)
+                            </a>
+                        </td>
 
                         <td>
                             <a href="@detailsUrl" class="table-row-link" aria-label="@ariaLabel">
-                                @(string.IsNullOrWhiteSpace(item.AssignedTo) ? Localizer["Unassigned"] : item.AssignedTo)
+                                @(string.IsNullOrWhiteSpace(item.AssignedToUser?.FullName) ? Localizer["Unassigned"] : item.AssignedToUser?.FullName)
                             </a>
                         </td>
 

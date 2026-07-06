@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugBoard.Api.Migrations
 {
     [DbContext(typeof(BugBoardDbContext))]
-    [Migration("20260519171826_AddApplicationUserNames")]
-    partial class AddApplicationUserNames
+    [Migration("20260705134536_AddBugReportSubscription")]
+    partial class AddBugReportSubscription
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.27");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
 
             modelBuilder.Entity("BugBoard.Api.Models.Account.ApplicationUser", b =>
                 {
@@ -98,10 +98,13 @@ namespace BugBoard.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("AssignedTo")
+                    b.Property<string>("AssignedToId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -114,6 +117,9 @@ namespace BugBoard.Api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("SupervisorId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -123,16 +129,96 @@ namespace BugBoard.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("SupervisorId");
+
                     b.ToTable("BugReports");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BugReportId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UploadedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BugReportId");
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.ToTable("BugReportAttachments");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BugReportId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CommentVisibility")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BugReportId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.ToTable("BugReportComments");
                 });
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("AssignedTo")
+                    b.Property<string>("AssignedToId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("BugReportId")
@@ -146,9 +232,39 @@ namespace BugBoard.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToId");
+
                     b.HasIndex("BugReportId");
 
                     b.ToTable("BugReportLogs");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BugReportId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyOnComment")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyOnStatusChange")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BugReportId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("BugReportSubscriptions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -279,15 +395,93 @@ namespace BugBoard.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReport", b =>
+                {
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId");
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId");
+
+                    b.Navigation("AssignedToUser");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Supervisor");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportAttachment", b =>
+                {
+                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
+                        .WithMany("Attachments")
+                        .HasForeignKey("BugReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId");
+
+                    b.Navigation("BugReport");
+
+                    b.Navigation("UploadedByUser");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportComment", b =>
+                {
+                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
+                        .WithMany("Comments")
+                        .HasForeignKey("BugReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId");
+
+                    b.Navigation("BugReport");
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportLog", b =>
                 {
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
                     b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
                         .WithMany("Logs")
                         .HasForeignKey("BugReportId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AssignedToUser");
+
                     b.Navigation("BugReport");
+                });
+
+            modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReportSubscription", b =>
+                {
+                    b.HasOne("BugBoard.Api.Models.BugReports.BugReport", "BugReport")
+                        .WithMany()
+                        .HasForeignKey("BugReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BugBoard.Api.Models.Account.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("BugReport");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -343,6 +537,10 @@ namespace BugBoard.Api.Migrations
 
             modelBuilder.Entity("BugBoard.Api.Models.BugReports.BugReport", b =>
                 {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("Comments");
+
                     b.Navigation("Logs");
                 });
 #pragma warning restore 612, 618
