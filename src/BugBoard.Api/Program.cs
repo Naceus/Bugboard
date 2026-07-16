@@ -1,5 +1,6 @@
 using BugBoard.Api.Data;
 using BugBoard.Api.Data.Seed;
+using BugBoard.Api.Middleware;
 using BugBoard.Api.Models.Account;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.Services.Dashboard;
@@ -81,7 +82,7 @@ internal class Program
             SupportedCultures = supportedCultures,
             SupportedUICultures = supportedCultures
         });
-        
+        app.UseMiddleware<ApiKeyMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
 

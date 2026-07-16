@@ -16,6 +16,7 @@ public class BugBoardDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BugReportComment> BugReportComments => Set<BugReportComment>();
     public DbSet<BugReportAttachment> BugReportAttachments => Set<BugReportAttachment>();
     public DbSet<BugReportSubscription> BugReportSubscriptions => Set<BugReportSubscription>();
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

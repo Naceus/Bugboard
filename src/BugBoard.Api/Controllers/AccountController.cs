@@ -1,9 +1,12 @@
-﻿using BugBoard.Api.Models.Account;
+﻿using BugBoard.Api.Data;
+using BugBoard.Api.Models.Account;
 using BugBoard.Api.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using SQLitePCL;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BugBoard.Api.Controllers
@@ -13,12 +16,14 @@ namespace BugBoard.Api.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly BugBoardDbContext _context;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, BugBoardDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _environment = environment;
+            _context = context;
         }
         [HttpGet]
         public IActionResult Login()
@@ -85,11 +90,22 @@ namespace BugBoard.Api.Controllers
 
                 if (result.Succeeded)
                 {
+                    var apiKey = new ApiKey
+                    {
+                        UserId = user.Id,
+                        Key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+                        User = user
+                    };
+
                     var roleResult = await _userManager.AddToRoleAsync(user, ApplicationRoles.Reporter);
                     if (roleResult.Succeeded)
                     {
+                        _context.ApiKeys.Add(apiKey);
+                        await _context.SaveChangesAsync();
+                        
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return RedirectToAction("Index", "BugReports");
+
                     }
                     await _userManager.DeleteAsync(user);
                     AddErrors(roleResult);
