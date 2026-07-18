@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace BugBoard.Api.Controllers.Api
 {
     [Route("api/[controller]")]
-    public class BugReportsApiController : Controller
+    public class BugReportsApiController : ControllerBase
     {
         private readonly BugBoardDbContext _context;
 
@@ -18,7 +18,7 @@ namespace BugBoard.Api.Controllers.Api
         }
      
         [HttpPost]
-        public async Task<IActionResult> CreateTicket(CreateBugReportApiViewModel model)
+        public async Task<IActionResult> CreateTicket([FromBody]CreateBugReportApiViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
