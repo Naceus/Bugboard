@@ -1,5 +1,6 @@
 ﻿using BugBoard.Api.Models.Account;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugBoard.Api.Data.Seed
 {
@@ -8,11 +9,13 @@ namespace BugBoard.Api.Data.Seed
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        public DatabaseSeeder(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        private readonly BugBoardDbContext _context;
+        public DatabaseSeeder(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IConfiguration configuration, BugBoardDbContext context)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _configuration = configuration;
+            _context = context;
         }
 
 
@@ -22,6 +25,13 @@ namespace BugBoard.Api.Data.Seed
         /// if Admin credentials are configured.
         /// </summary>
         public async Task SeedAsync()
+        {
+            await SeedRolesAsync();
+            await SeedAdminAsync();
+            await SeedApiKeysAsync();
+        }
+
+        private async Task SeedRolesAsync()
         {
             string[] roles = { ApplicationRoles.Admin, ApplicationRoles.Developer, ApplicationRoles.Reporter };
 
@@ -33,38 +43,61 @@ namespace BugBoard.Api.Data.Seed
                     ThrowIfFailed(roleResult, $"Failed to seed role '{role}'");
                 }
             }
+        }
+
+        private async Task SeedAdminAsync()
+        {
             var adminEmail = _configuration["SeedAdmin:Email"];
             var adminPassword = _configuration["SeedAdmin:Password"];
 
-            if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword)){
-                return;
-            }
-
-            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
-            if ( adminUser == null)
+            if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
             {
-                adminUser = new ApplicationUser
+                var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+                if (adminUser == null)
                 {
-                    FirstName = "System",
-                    LastName = "Admin",
-                    Email = adminEmail,
-                    UserName = adminEmail,
+                    adminUser = new ApplicationUser
+                    {
+                        FirstName = "System",
+                        LastName = "Admin",
+                        Email = adminEmail,
+                        UserName = adminEmail,
 
-                };
-                
-                var result = await _userManager.CreateAsync(adminUser, adminPassword);
-                ThrowIfFailed(result, "Failed to seed admin user");
-                
+                    };
+
+                    var result = await _userManager.CreateAsync(adminUser, adminPassword);
+                    ThrowIfFailed(result, "Failed to seed admin user");
+
+                }
+                var isAdmin = await _userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin);
+                if (!isAdmin)
+                {
+                    var roleResult = await _userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
+                    ThrowIfFailed(roleResult, "Failed to assign admin role");
+
+                }
             }
+        }
 
-            var isAdmin = await _userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin);
-            if (!isAdmin)
+        private async Task SeedApiKeysAsync()
+        {
+            var users = _userManager.Users.ToList();
+            foreach (var user in users)
             {
-                var roleResult = await _userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
-                ThrowIfFailed(roleResult, "Failed to assign admin role");
-                
-            }                     
-             
+                var result = await _context.ApiKeys.FirstOrDefaultAsync(a => a.UserId == user.Id);
+
+                if (result == null)
+                {
+                    ApiKey apiKey = new ApiKey
+                    {
+                        UserId = user.Id,
+                        Key = Guid.NewGuid().ToString(),
+                    };
+                    _context.ApiKeys.Add(apiKey);
+                }
+
+            }
+            await _context.SaveChangesAsync();
+
         }
 
         /// <summary>

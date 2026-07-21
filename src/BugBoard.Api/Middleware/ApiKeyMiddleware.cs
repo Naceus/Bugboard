@@ -17,7 +17,7 @@ namespace BugBoard.Api.Middleware
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            if(!context.Request.Path.StartsWithSegments("/api"))
+            if(!context.Request.Path.StartsWithSegments("/api") || context.Request.Path.StartsWithSegments("/api/agent"))
             {
                 await _next(context);
                 return;

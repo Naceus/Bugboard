@@ -2,6 +2,7 @@ using BugBoard.Api.Data;
 using BugBoard.Api.Data.Seed;
 using BugBoard.Api.Middleware;
 using BugBoard.Api.Models.Account;
+using BugBoard.Api.Services.Agent;
 using BugBoard.Api.Services.BugReports;
 using BugBoard.Api.Services.Dashboard;
 using BugBoard.Api.Services.Notifications;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 internal class Program
 {
@@ -20,7 +22,9 @@ internal class Program
         builder.Services
             .AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services
-            .AddControllersWithViews();
+            .AddControllersWithViews()
+            .AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())); 
         builder.Services
             .AddDbContext<BugBoardDbContext>(options => options
             .UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -36,6 +40,8 @@ internal class Program
             .AddScoped<INotificationRecipientService, NotificationRecipientService>();
         builder.Services
             .AddHttpClient<INotificationService, NotificationService>();
+        builder.Services
+            .AddHttpClient<IAgentService, AgentService>();
         builder.Services
             .AddScoped<DatabaseSeeder>();
         //Add Identity for login
@@ -84,7 +90,7 @@ internal class Program
         app.UseMiddleware<ApiKeyMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
-
+        app.MapControllers();
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
