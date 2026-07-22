@@ -8,15 +8,17 @@
 
         public string Icon { get; }
         public string Variant { get; }
+        public string? FilterUrl { get; }
 
 
-        public DashboardMetricViewModel(string title, string value, string description, string icon, string variant)
+        public DashboardMetricViewModel(string title, string value, string description, string icon, string variant, string? filterUrl)
         {
             Title = title;
             Value = value;
             Description = description;
             Icon = icon;
             Variant = variant;
+            FilterUrl = filterUrl;
         }
     }
 }
