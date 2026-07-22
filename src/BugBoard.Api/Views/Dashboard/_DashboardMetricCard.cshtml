@@ -1,0 +1,19 @@
+﻿@model DashboardMetricViewModel
+
+<div class="dashboard-metric-icon">
+    @Model.Icon
+</div>
+
+<div class="dashboard-metric-content">
+    <span class="dashboard-metric-title">
+        @Localizer[Model.Title]
+    </span>
+
+    <strong class="dashboard-metric-value">
+        @Model.Value
+    </strong>
+
+    <p class="dashboard-metric-description">
+        @Localizer[Model.Description]
+    </p>
+</div>

@@ -51,9 +51,9 @@ namespace BugBoard.Api.Services.Dashboard
             return viewModel;
         }
 
-        private DashboardMetricViewModel CreateMetric(string title, int value, string description, string icon, string variant)
+        private DashboardMetricViewModel CreateMetric(string title, int value, string description, string icon, string variant, string? filterUrl)
         {
-                   DashboardMetricViewModel viewModel = new(title, value.ToString(), description, icon, variant);
+                   DashboardMetricViewModel viewModel = new(title, value.ToString(), description, icon, variant, filterUrl);
 
             return viewModel;
           
@@ -74,10 +74,10 @@ namespace BugBoard.Api.Services.Dashboard
         private List<DashboardMetricViewModel> BuildMetrics(int unassignedCount,int openCount, int inProgressCount, int closedCount, bool isStaff)
         {
 
-            var unassignedMetric = CreateMetric(_localizer["Unassigned Reports"], unassignedCount, _localizer["Reports waiting to be assigned"], "?", "danger");
-            var openMetric = CreateMetric(_localizer["Open Reports"], openCount, _localizer["Reports waiting for review"], "!", "warning");
-            var inProgressMetric = CreateMetric(_localizer["In Progress"], inProgressCount, _localizer["Reports currently being worked on"], "↻", "primary");
-            var closedMetric = CreateMetric(_localizer["Closed"], closedCount, _localizer["Reports completed"], "✓", "success");
+            var unassignedMetric = CreateMetric(_localizer["Unassigned Reports"], unassignedCount, _localizer["Reports waiting to be assigned"], "?", "danger", "/BugReports?unassigned=true");
+            var openMetric = CreateMetric(_localizer["Open Reports"], openCount, _localizer["Reports waiting for review"], "!", "warning", "/BugReports?status=Open");
+            var inProgressMetric = CreateMetric(_localizer["In Progress"], inProgressCount, _localizer["Reports currently being worked on"], "↻", "primary", "/BugReports?status=InProgress");
+            var closedMetric = CreateMetric(_localizer["Closed"], closedCount, _localizer["Reports completed"], "✓", "success", "/BugReports?status=Closed");
 
           
          

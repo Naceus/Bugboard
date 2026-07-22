@@ -51,10 +51,10 @@ namespace BugBoard.Api.Controllers
         }
 
         // GET: BugReports
-        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority, string? title, int page = 1)
+        public async Task<IActionResult> Index(BugStatus? status, BugPriority? priority, string? title, bool? unassigned, int page = 1)
         {
 
-            var viewModel = await BuildIndexViewModel(status, priority, title, page);
+            var viewModel = await BuildIndexViewModel(status, priority, title, page, unassigned);
 
             return View(viewModel);
         }
@@ -411,9 +411,9 @@ namespace BugBoard.Api.Controllers
 
         }
 
-        public async Task<IActionResult> Search(BugStatus? status, BugPriority? priority, string? title, int page = 1)
+        public async Task<IActionResult> Search(BugStatus? status, BugPriority? priority, string? title, bool? unassigned, int page = 1)
         {
-            var viewModel = await BuildIndexViewModel(status, priority, title, page);
+            var viewModel = await BuildIndexViewModel(status, priority, title, page, unassigned);
 
             return PartialView("_BugReportTable", viewModel);
         }
@@ -478,7 +478,7 @@ namespace BugBoard.Api.Controllers
         /// <param name="title">Optional Title search.</param>
         /// <param name="page">Current page number.</param>
         /// <returns>A prepared view model for the Index view.</returns>
-        private async Task<BugReportIndexViewModel> BuildIndexViewModel(BugStatus? status, BugPriority? priority, string? title, int page)
+        private async Task<BugReportIndexViewModel> BuildIndexViewModel(BugStatus? status, BugPriority? priority, string? title, int page, bool? unassigned)
         {
             const int pageSize = 10;
             page = Math.Max(page, 1);
@@ -506,6 +506,10 @@ namespace BugBoard.Api.Controllers
             if (priority.HasValue)
             {
                 bugReports = bugReports.Where(b => b.Priority == priority.Value);
+            }
+            if (unassigned == true)
+            {
+                bugReports = bugReports.Where(b => b.AssignedToId == null);
             }
 
 

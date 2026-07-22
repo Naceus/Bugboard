@@ -13,25 +13,19 @@
     <section class="dashboard-metrics" aria-label="Dashboard metrics">
         @foreach (var metric in Model.Metrics)
         {
-            <article class="dashboard-metric-card dashboard-metric-card--@metric.Variant">
-                <div class="dashboard-metric-icon">
-                    @metric.Icon
-                </div>
-
-                <div class="dashboard-metric-content">
-                    <span class="dashboard-metric-title">
-                        @Localizer[metric.Title]
-                    </span>
-
-                    <strong class="dashboard-metric-value">
-                        @metric.Value
-                    </strong>
-
-                    <p class="dashboard-metric-description">
-                        @Localizer[metric.Description]
-                    </p>
-                </div>
-            </article>
+            @if (metric.FilterUrl != null)
+            {
+                <a href="@metric.FilterUrl" style="text-decoration:none" class="dashboard-metric-card dashboard-metric-card--@metric.Variant">
+                    @await Html.PartialAsync("_DashboardMetricCard", metric)
+                </a>
+                
+            }
+            else
+            {
+                <article class="dashboard-metric-card dashboard-metric-card--@metric.Variant">
+                    @await Html.PartialAsync("_DashboardMetricCard", metric)
+                </article>
+            }
         }
     </section>
 
