@@ -5,6 +5,7 @@ const chatInput = document.getElementById("chat-input-field");
 const messages = document.querySelector(".chat-messages");
 document.getElementById("chat-toggle").addEventListener("click", () => {
     document.getElementById("chat-window").classList.toggle("open");
+    chatInput.focus();
 
     if (!hasOpened) {
         document.querySelector(".chat-messages").innerHTML += `<div>
