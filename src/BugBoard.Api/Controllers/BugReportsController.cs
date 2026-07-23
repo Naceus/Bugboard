@@ -144,6 +144,7 @@ namespace BugBoard.Api.Controllers
 
             if (recipients.Any())
             {
+                var user = await _userManager.GetUserAsync(User);
                 var payload = new BugReportNotificationPayload()
                 {
                     BugReportTitle = bugReport.Title,
@@ -152,6 +153,9 @@ namespace BugBoard.Api.Controllers
                     Priority = bugReport.Priority.ToString(),
                     ReporterName = bugReport.CreatedByUser?.FullName ?? string.Empty,
                     EventType = "Comment",
+                    ChangedByName = user?.FullName ?? string.Empty,
+                    TicketUrl = $"/BugReports/Details/{bugReport.Id}"
+
                 };
                 
                 await SendBugReportNotificationsAsync(recipients, payload);
@@ -279,6 +283,7 @@ namespace BugBoard.Api.Controllers
 
                     if (recipients.Any())
                     {
+                        var user = await _userManager.GetUserAsync(User);
                         var payload = new BugReportNotificationPayload();
                         payload.BugReportId = bugReport.Id;
                         payload.BugReportTitle = bugReport.Title;
@@ -287,6 +292,8 @@ namespace BugBoard.Api.Controllers
                         payload.NewStatus = bugReport.Status.ToString();
                         payload.Priority = bugReport.Priority.ToString();
                         payload.ReporterName = oldBugReport.CreatedByUser?.FullName ?? string.Empty;
+                        payload.ChangedByName = user?.FullName ?? string.Empty;
+                        payload.TicketUrl = $"/BugReports/Details/{bugReport.Id}";
 
                         await SendBugReportNotificationsAsync(recipients, payload);
                     }

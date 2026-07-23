@@ -11,5 +11,7 @@
         public string? Comment { get; set; }
         public string Priority { get; set; } = string.Empty;
         public string ReporterName { get; set; } = string.Empty;
+        public string ChangedByName { get; set; } = string.Empty;
+        public string TicketUrl {  get; set; } = string.Empty;
     }
 }
