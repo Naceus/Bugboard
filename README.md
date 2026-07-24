@@ -237,7 +237,7 @@ The admin password is not stored in `appsettings.json` and should not be committ
 ## Roles and Permissions
 
 - Create and view internal comments
-- 
+  
 ### Admin
 
 Admins can:
